@@ -6,13 +6,101 @@ import type {
   SpatialQueryType,
   PerformanceRecommendation,
   EntityType,
-  FieldType
+  FieldType,
+  AIAnalysisConfig
 } from './types.js';
 import type { SpatialElement } from '@fir/spatial-runtime';
 import type { DesignExtraction } from '@fir/figma-bridge';
+import { AIPatternAnalyzer } from './ai-analyzer.js';
 
 export class SpatialAnalyzer {
-  analyzeDesignForDatabase(extraction: DesignExtraction): SpatialAnalysis {
+  private aiAnalyzer: AIPatternAnalyzer;
+  private useAI: boolean;
+
+  constructor(aiConfig?: AIAnalysisConfig) {
+    this.useAI = !!(aiConfig?.apiKey || process.env.OPENAI_API_KEY);
+    
+    // Always create AI analyzer for rule-based fallback methods
+    this.aiAnalyzer = new AIPatternAnalyzer({
+      debug: true,
+      ...aiConfig
+    });
+  }
+
+  async analyzeDesignForDatabase(extraction: DesignExtraction): Promise<SpatialAnalysis> {
+    if (this.useAI) {
+      return this.analyzeWithAI(extraction.elements);
+    } else {
+      return this.analyzeWithRules(extraction);
+    }
+  }
+
+  /**
+   * AI-powered analysis with fallback to rule-based
+   */
+  private async analyzeWithAI(elements: SpatialElement[]): Promise<SpatialAnalysis> {
+    try {
+      console.log('🤖 Using AI-powered spatial analysis...');
+      
+      const aiAnalysis = await this.aiAnalyzer.analyzeDesignPatterns(elements);
+      
+      // Convert AI analysis to standard format
+      const entities = this.convertAIEntitiesToDetectedEntities(aiAnalysis.entities);
+      const relationships = this.convertAIRelationshipsToSuggested(aiAnalysis.relationships);
+      const spatialQueries = this.identifyRequiredSpatialQueries(elements);
+      const performance = this.generatePerformanceRecommendations(entities, spatialQueries);
+
+      console.log('✅ AI analysis completed successfully');
+      
+      return {
+        entities,
+        relationships,
+        spatialQueries,
+        performance,
+        aiInsights: {
+          entityInsights: aiAnalysis.entities.insights,
+          relationshipInsights: aiAnalysis.relationships.insights,
+          confidence: {
+            entities: aiAnalysis.entities.confidence,
+            relationships: aiAnalysis.relationships.confidence,
+            endpoints: aiAnalysis.endpoints.confidence
+          }
+        }
+      };
+      
+    } catch (error) {
+      console.warn('⚠️ AI analysis failed, falling back to rule-based analysis:', error);
+      return await this.analyzeWithRules({ elements } as DesignExtraction);
+    }
+  }
+
+  /**
+   * Traditional rule-based analysis (enhanced with AI analyzer rule-based methods)
+   */
+  private async analyzeWithRules(extraction: DesignExtraction): SpatialAnalysis {
+    console.log('📐 Using rule-based spatial analysis...');
+    
+    // Use AI analyzer's improved rule-based methods if available
+    if (this.aiAnalyzer) {
+      try {
+        const aiAnalysis = await this.aiAnalyzer.analyzeDesignPatterns(extraction.elements);
+        const entities = this.convertAIEntitiesToDetectedEntities(aiAnalysis.entities);
+        const relationships = this.convertAIRelationshipsToSuggested(aiAnalysis.relationships);
+        const spatialQueries = this.identifyRequiredSpatialQueries(extraction.elements);
+        const performance = this.generatePerformanceRecommendations(entities, spatialQueries);
+
+        return {
+          entities,
+          relationships,
+          spatialQueries,
+          performance
+        };
+      } catch (error) {
+        console.warn('⚠️ Enhanced rule-based analysis failed, using basic rules:', error);
+      }
+    }
+    
+    // Fallback to basic rule-based analysis
     const entities = this.detectEntities(extraction.elements);
     const relationships = this.suggestRelationships(entities);
     const spatialQueries = this.identifyRequiredSpatialQueries(extraction.elements);
@@ -24,6 +112,95 @@ export class SpatialAnalyzer {
       spatialQueries,
       performance
     };
+  }
+
+  /**
+   * Convert AI entity analysis to DetectedEntity format
+   */
+  private convertAIEntitiesToDetectedEntities(aiAnalysis: any): DetectedEntity[] {
+    return aiAnalysis.entities.map((aiEntity: any) => ({
+      name: aiEntity.name,
+      sourceElements: aiEntity.sourceElements,
+      fields: aiEntity.fields.map((field: any) => ({
+        name: field.name,
+        type: this.mapAIFieldTypeToFieldType(field.type),
+        source: 'ai_analysis',
+        required: field.required,
+        unique: field.unique,
+        examples: field.primary ? [1, 2, 3] : ['example_value']
+      })),
+      type: this.inferEntityTypeFromName(aiEntity.name),
+      confidence: aiEntity.confidence
+    }));
+  }
+
+  /**
+   * Convert AI relationship analysis to SuggestedRelationship format
+   */
+  private convertAIRelationshipsToSuggested(aiAnalysis: any): SuggestedRelationship[] {
+    return aiAnalysis.relationships.map((aiRel: any) => ({
+      from: aiRel.from,
+      to: aiRel.to,
+      type: aiRel.type,
+      confidence: aiRel.confidence,
+      reasoning: aiRel.reasoning
+    }));
+  }
+
+  /**
+   * Map AI field types to our FieldType enum
+   */
+  private mapAIFieldTypeToFieldType(aiType: string): FieldType {
+    const typeMap: Record<string, FieldType> = {
+      'serial': 'number',
+      'varchar': 'string', 
+      'varchar(255)': 'string',
+      'text': 'string',
+      'integer': 'number',
+      'decimal': 'number',
+      'timestamp': 'date',
+      'boolean': 'boolean',
+      'geometry': 'geometry',
+      'geometry(Point,4326)': 'point',
+      'json': 'json',
+      'jsonb': 'json'
+    };
+
+    return typeMap[aiType] || 'string';
+  }
+
+  /**
+   * Infer entity type from AI-generated name
+   */
+  private inferEntityTypeFromName(name: string): EntityType {
+    const lowerName = name.toLowerCase();
+    
+    if (lowerName.includes('user') || lowerName.includes('profile') || lowerName.includes('account')) {
+      return 'user';
+    }
+    if (lowerName.includes('form') || lowerName.includes('submission') || lowerName.includes('contact')) {
+      return 'form';
+    }
+    if (lowerName.includes('nav') || lowerName.includes('menu') || lowerName.includes('link')) {
+      return 'navigation';
+    }
+    if (lowerName.includes('media') || lowerName.includes('image') || lowerName.includes('asset')) {
+      return 'media';
+    }
+    if (lowerName.includes('spatial') || lowerName.includes('location') || lowerName.includes('position')) {
+      return 'spatial';
+    }
+    if (lowerName.includes('content') || lowerName.includes('post') || lowerName.includes('article')) {
+      return 'content';
+    }
+    
+    return 'metadata';
+  }
+
+  // Legacy sync method - deprecated, use async version above
+  analyzeDesignForDatabaseSync(extraction: DesignExtraction): SpatialAnalysis {
+    console.warn('⚠️ Using deprecated sync analysis method. Consider upgrading to async AI analysis.');
+    return this.analyzeWithRules(extraction);
   }
 
   private detectEntities(elements: SpatialElement[]): DetectedEntity[] {

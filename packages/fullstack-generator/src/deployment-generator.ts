@@ -6,6 +6,7 @@ import type {
   SpatialDataModel,
   APIEndpoint
 } from './types.js';
+import { VercelSupabaseTemplates } from './vercel-supabase-templates.js';
 
 export class DeploymentGenerator {
   private config: FullstackGeneratorConfig;
@@ -27,6 +28,8 @@ export class DeploymentGenerator {
     switch (this.config.deployment) {
       case 'vercel':
         return { ...baseConfig, ...this.generateVercelConfig() };
+      case 'vercel-supabase':
+        return { ...baseConfig, ...this.generateVercelSupabaseConfig() };
       case 'railway':
         return { ...baseConfig, ...this.generateRailwayConfig() };
       case 'aws':
@@ -55,6 +58,9 @@ export class DeploymentGenerator {
     switch (config.target) {
       case 'vercel':
         files.push(...this.generateVercelFiles(config));
+        break;
+      case 'vercel-supabase':
+        files.push(...this.generateVercelSupabaseFiles(config, models));
         break;
       case 'railway':
         files.push(...this.generateRailwayFiles(config));
@@ -159,6 +165,20 @@ export class DeploymentGenerator {
     return {
       staticDirs: ['public', 'static'],
       domains: ['your-domain.vercel.app']
+    };
+  }
+
+  private generateVercelSupabaseConfig(): Partial<DeploymentConfig> {
+    const vercelSupabaseConfig = this.config.vercelSupabase || {
+      enableAuth: true,
+      enableStorage: false,
+      enableEdgeFunctions: false
+    };
+
+    return {
+      staticDirs: ['public', 'static'],
+      domains: ['your-domain.vercel.app'],
+      vercelSupabase: vercelSupabaseConfig
     };
   }
 
@@ -337,6 +357,94 @@ ENABLE_METRICS=true
         description: 'Vercel deployment configuration'
       }
     ];
+  }
+
+  private generateVercelSupabaseFiles(config: DeploymentConfig, models: SpatialDataModel[]): GeneratedFile[] {
+    if (!config.vercelSupabase) {
+      throw new Error('Vercel/Supabase config not found');
+    }
+
+    const templates = new VercelSupabaseTemplates(config.vercelSupabase);
+    const files: GeneratedFile[] = [];
+
+    // Vercel configuration
+    files.push({
+      path: 'vercel.json',
+      content: JSON.stringify(templates.generateVercelJson(), null, 2),
+      type: 'json',
+      description: 'Vercel deployment configuration for Supabase integration'
+    });
+
+    // Package.json
+    files.push({
+      path: 'package.json',
+      content: JSON.stringify(templates.generatePackageJson(this.config.projectName), null, 2),
+      type: 'json',
+      description: 'Package.json with Supabase dependencies'
+    });
+
+    // Supabase client configuration
+    files.push({
+      path: 'lib/supabase.js',
+      content: templates.generateSupabaseConfig(),
+      type: 'javascript',
+      description: 'Supabase client configuration'
+    });
+
+    // Environment template
+    files.push({
+      path: '.env.example',
+      content: templates.generateEnvTemplate(),
+      type: 'text',
+      description: 'Environment variables template for Vercel/Supabase'
+    });
+
+    // API routes
+    const apiRoutes = templates.generateApiRoutes(models);
+    for (const route of apiRoutes) {
+      files.push({
+        path: route.path,
+        content: route.content,
+        type: 'javascript',
+        description: `API route for ${route.path}`
+      });
+    }
+
+    // Supabase migrations
+    files.push({
+      path: 'supabase/migrations/001_initial_schema.sql',
+      content: templates.generateSupabaseMigrations(models),
+      type: 'sql',
+      description: 'Supabase database migrations with PostGIS support'
+    });
+
+    // Deployment script
+    files.push({
+      path: 'deploy.sh',
+      content: templates.generateDeploymentScript(),
+      type: 'text',
+      description: 'Automated deployment script for Vercel/Supabase',
+      executable: true
+    });
+
+    // Next.js pages if framework is Next.js
+    if (this.config.apiFramework === 'nextjs') {
+      files.push({
+        path: 'pages/_app.js',
+        content: this.generateNextjsApp(),
+        type: 'javascript',
+        description: 'Next.js app component with Supabase integration'
+      });
+
+      files.push({
+        path: 'pages/index.js',
+        content: this.generateNextjsHomePage(models),
+        type: 'javascript',
+        description: 'Next.js home page with spatial features'
+      });
+    }
+
+    return files;
   }
 
   private generateRailwayFiles(config: DeploymentConfig): GeneratedFile[] {
@@ -720,5 +828,99 @@ console.log('✅ Database seeded successfully');
       default:
         return [];
     }
+  }
+
+  private generateNextjsApp(): string {
+    return `import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { useState } from 'react';
+
+export default function App({ Component, pageProps }) {
+  const [supabaseClient] = useState(() => createPagesBrowserClient());
+
+  return (
+    <SessionContextProvider
+      supabaseClient={supabaseClient}
+      initialSession={pageProps.initialSession}
+    >
+      <Component {...pageProps} />
+    </SessionContextProvider>
+  );
+}`;
+  }
+
+  private generateNextjsHomePage(models: SpatialDataModel[]): string {
+    const modelName = models[0]?.name || 'Item';
+    const tableName = models[0]?.tableName || 'items';
+
+    return `import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
+
+export default function Home() {
+  const [${tableName}, set${modelName}s] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  async function fetchData() {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('${tableName}')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching data:', error);
+      } else {
+        set${modelName}s(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>FIR Spatial App</h1>
+      <p>Generated from Figma/Penpot with full-stack backend</p>
+      
+      <h2>${modelName}s ({${tableName}.length})</h2>
+      <div>
+        {${tableName}.map((item) => (
+          <div key={item.id} style={{ 
+            border: '1px solid #ccc', 
+            margin: '10px 0', 
+            padding: '10px',
+            borderRadius: '4px'
+          }}>
+            <pre>{JSON.stringify(item, null, 2)}</pre>
+          </div>
+        ))}
+      </div>
+
+      <style jsx>{\`
+        div {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        h1 {
+          color: #333;
+        }
+        
+        h2 {
+          color: #666;
+        }
+      \`}</style>
+    </div>
+  );
+}`;
   }
 }

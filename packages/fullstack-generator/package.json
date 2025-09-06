@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -20,8 +22,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@fir/figma-bridge": "workspace:*",
     "@fir/spatial-runtime": "workspace:*",
-    "@fir/figma-bridge": "workspace:*"
+    "dotenv": "^17.2.2",
+    "openai": "^4.104.0"
   },
   "devDependencies": {
     "jsdom": "^23.0.0",

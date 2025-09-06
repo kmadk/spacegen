@@ -18,11 +18,15 @@ export interface FullstackGeneratorConfig {
   outputDir?: string;
   /** Debug mode */
   debug?: boolean;
+  /** OpenAI API key for AI-powered analysis */
+  openaiApiKey?: string;
+  /** Penpot integration config */
+  penpot?: PenpotConfig;
 }
 
 export type DatabaseProvider = 'postgresql' | 'mysql' | 'sqlite' | 'mongodb';
 export type APIFramework = 'express' | 'fastify' | 'nextjs' | 'trpc' | 'graphql';
-export type DeploymentTarget = 'vercel' | 'railway' | 'aws' | 'gcp' | 'docker' | 'local';
+export type DeploymentTarget = 'vercel' | 'railway' | 'aws' | 'gcp' | 'docker' | 'local' | 'vercel-supabase';
 
 // Spatial Data Models
 export interface SpatialDataModel {
@@ -114,6 +118,8 @@ export interface ModelRelationship {
 export interface ModelMetadata {
   /** Source Figma element ID */
   figmaElementId?: string;
+  /** Source Penpot element ID */
+  penpotElementId?: string;
   /** Element type */
   elementType?: string;
   /** Spatial bounds */
@@ -210,6 +216,141 @@ export interface RateLimitConfig {
   window: number;
 }
 
+// Smart Data Generation Types
+export interface SmartDataConfig {
+  /** Number of records to generate per entity */
+  recordsPerEntity?: number;
+  /** Spatial coordinate bounds */
+  spatialBounds?: {
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
+  };
+  /** Use realistic data vs random data */
+  useRealisticData?: boolean;
+  /** Include relationship data */
+  includeRelationships?: boolean;
+  /** OpenAI API key for AI-powered data generation */
+  openaiApiKey?: string;
+  /** Enable debug logging */
+  debug?: boolean;
+}
+
+export interface GeneratedSeedData {
+  /** Generated data records by entity */
+  entities: Record<string, Record<string, any>[]>;
+  /** Relationship mappings */
+  relationships: Array<{
+    from: string;
+    to: string;
+    fromId: any;
+    toId: any;
+  }>;
+  /** Spatial distribution analysis */
+  spatialDistribution: Record<string, any>;
+  /** Generation metadata */
+  metadata: {
+    generatedAt: Date;
+    totalRecords: number;
+    themes: string[];
+    confidence: number;
+  };
+}
+
+// AI Analysis Types
+export interface AIAnalysisConfig {
+  /** OpenAI API key */
+  apiKey?: string;
+  /** Model to use for analysis */
+  model?: string;
+  /** Maximum tokens per request */
+  maxTokens?: number;
+  /** Temperature for AI responses */
+  temperature?: number;
+  /** Enable debug logging */
+  debug?: boolean;
+}
+
+export interface AIEntityAnalysis {
+  /** Detected entities with AI confidence scores */
+  entities: Array<{
+    name: string;
+    tableName: string;
+    fields: Array<{
+      name: string;
+      type: string;
+      required: boolean;
+      primary?: boolean;
+      unique?: boolean;
+    }>;
+    sourceElements: string[];
+    confidence: number;
+    reasoning: string;
+  }>;
+  /** AI insights about the design patterns */
+  insights: string[];
+  /** Overall confidence in the analysis */
+  confidence: number;
+}
+
+export interface AIRelationshipAnalysis {
+  /** AI-detected entity relationships */
+  relationships: Array<{
+    from: string;
+    to: string;
+    type: 'oneToOne' | 'oneToMany' | 'manyToMany';
+    confidence: number;
+    reasoning: string;
+    foreignKey?: string;
+    spatialContext?: string;
+  }>;
+  /** Spatial insights from relationship analysis */
+  insights: string[];
+  /** Overall confidence */
+  confidence: number;
+}
+
+export interface AIEndpointAnalysis {
+  /** AI-generated API endpoints */
+  endpoints: Array<{
+    path: string;
+    method: string;
+    handler: string;
+    description: string;
+    spatialQuery: boolean;
+    queryParams?: Array<{
+      name: string;
+      type: string;
+      description: string;
+    }>;
+    bodySchema?: Record<string, string>;
+  }>;
+  /** Authentication endpoints */
+  authEndpoints: string[];
+  /** Spatial-specific endpoints */
+  spatialEndpoints: string[];
+  /** Overall confidence */
+  confidence: number;
+}
+
+export interface AISeedDataAnalysis {
+  /** Data types and generation requirements */
+  dataTypes: Array<{
+    entity: string;
+    sampleCount: number;
+    theme: string;
+    spatialPattern: string;
+    examples: Record<string, any>[];
+  }>;
+  /** Detected themes from content analysis */
+  themes: string[];
+  /** Spatial distribution patterns */
+  spatialPatterns: Record<string, string>;
+  /** Overall confidence */
+  confidence: number;
+}
+
 // Generated Output
 export interface GeneratedProject {
   /** Project configuration */
@@ -271,6 +412,8 @@ export interface DeploymentConfig {
   staticDirs?: string[];
   /** Domain configuration */
   domains?: string[];
+  /** Vercel/Supabase specific config */
+  vercelSupabase?: VercelSupabaseConfig;
 }
 
 export interface GeneratedDocumentation {
@@ -395,6 +538,149 @@ export interface TemplateUtils {
   pluralize: (str: string) => string;
   /** Singularize word */
   singularize: (str: string) => string;
+}
+
+// Penpot Integration Types
+export interface PenpotConfig {
+  /** Penpot file URL or local path */
+  fileUrl?: string;
+  /** Penpot access token */
+  accessToken?: string;
+  /** Penpot team ID */
+  teamId?: string;
+  /** Enable shape analysis */
+  analyzeShapes?: boolean;
+  /** Enable text content extraction */
+  extractTextContent?: boolean;
+  /** Enable component detection */
+  detectComponents?: boolean;
+}
+
+export interface PenpotFile {
+  /** File ID */
+  id: string;
+  /** File name */
+  name: string;
+  /** File pages */
+  pages: PenpotPage[];
+  /** File metadata */
+  metadata: Record<string, any>;
+  /** Creation date */
+  createdAt: string;
+  /** Last modified date */
+  modifiedAt: string;
+}
+
+export interface PenpotPage {
+  /** Page ID */
+  id: string;
+  /** Page name */
+  name: string;
+  /** Page objects/shapes */
+  objects: Record<string, PenpotShape>;
+  /** Page options */
+  options: Record<string, any>;
+}
+
+export interface PenpotShape {
+  /** Shape ID */
+  id: string;
+  /** Shape name */
+  name: string;
+  /** Shape type */
+  type: 'frame' | 'group' | 'rect' | 'circle' | 'text' | 'image' | 'path';
+  /** Transform matrix */
+  transform: number[];
+  /** Shape geometry */
+  geometry?: PenpotGeometry;
+  /** Fill styles */
+  fills?: PenpotFill[];
+  /** Stroke styles */
+  strokes?: PenpotStroke[];
+  /** Text content (for text shapes) */
+  content?: string;
+  /** Child shapes */
+  shapes?: string[];
+  /** Shape constraints */
+  constraints?: PenpotConstraints;
+  /** Additional metadata */
+  metadata?: Record<string, any>;
+}
+
+export interface PenpotGeometry {
+  /** Bounding box */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** Rotation */
+  rotation?: number;
+  /** Path data (for paths) */
+  pathData?: string;
+}
+
+export interface PenpotFill {
+  /** Fill type */
+  type: 'solid' | 'gradient' | 'image';
+  /** Fill color (for solid) */
+  color?: string;
+  /** Fill opacity */
+  opacity?: number;
+  /** Gradient data (for gradient) */
+  gradient?: any;
+  /** Image data (for image) */
+  image?: any;
+}
+
+export interface PenpotStroke {
+  /** Stroke color */
+  color: string;
+  /** Stroke width */
+  width: number;
+  /** Stroke style */
+  style?: 'solid' | 'dashed' | 'dotted';
+  /** Stroke opacity */
+  opacity?: number;
+}
+
+export interface PenpotConstraints {
+  /** Horizontal constraint */
+  horizontal: 'left' | 'right' | 'leftright' | 'center' | 'scale';
+  /** Vertical constraint */
+  vertical: 'top' | 'bottom' | 'topbottom' | 'center' | 'scale';
+}
+
+// Vercel/Supabase Integration Types
+export interface VercelSupabaseConfig {
+  /** Supabase project URL */
+  supabaseUrl?: string;
+  /** Supabase anon key */
+  supabaseAnonKey?: string;
+  /** Enable Supabase Auth */
+  enableAuth?: boolean;
+  /** Enable Supabase Storage */
+  enableStorage?: boolean;
+  /** Enable Supabase Edge Functions */
+  enableEdgeFunctions?: boolean;
+  /** Vercel project settings */
+  vercel?: VercelConfig;
+}
+
+export interface VercelConfig {
+  /** Vercel project name */
+  projectName?: string;
+  /** Vercel team ID */
+  teamId?: string;
+  /** Build command */
+  buildCommand?: string;
+  /** Output directory */
+  outputDirectory?: string;
+  /** Install command */
+  installCommand?: string;
+  /** Framework preset */
+  framework?: 'nextjs' | 'react' | 'vue' | 'svelte' | 'nuxtjs';
+  /** Environment variables */
+  environmentVariables?: Record<string, string>;
 }
 
 // Validation Types

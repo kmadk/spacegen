@@ -1,0 +1,29 @@
+{
+  "name": "@fir/locofy-integration",
+  "version": "0.1.0",
+  "description": "Integration layer for Locofy.ai frontend generation with FIR spatial intelligence",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@fir/figma-bridge": "workspace:*",
+    "@fir/spatial-runtime": "workspace:*",
+    "@fir/fullstack-generator": "workspace:*",
+    "node-fetch": "^3.3.2",
+    "cheerio": "^1.0.0-rc.12",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.1.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0",
+    "@types/fs-extra": "^11.0.4"
+  }
+}
