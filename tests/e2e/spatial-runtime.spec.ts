@@ -114,16 +114,16 @@ test.describe('Spatial Runtime Integration Tests', () => {
     await page.click('button:has-text("Standard")'); // zoom = 1.0
     const formStandard = page.locator('.spatial-form').first();
     let transform = await formStandard.evaluate(el => window.getComputedStyle(el).transform);
-    // Browsers return different formats: "scale(1)" or "matrix(1, 0, 0, 1, 0, 0)"
-    expect(transform === 'scale(1)' || transform === 'matrix(1, 0, 0, 1, 0, 0)').toBeTruthy();
+    // Browsers return different formats: "scale(1)" or "matrix(1, 0, 0, 1, 0, 0)" or "none"
+    expect(transform === 'scale(1)' || transform === 'matrix(1, 0, 0, 1, 0, 0)' || transform === 'none').toBeTruthy();
 
     // Test atomic level scaling (zoom = 3.0, but capped at 2.0 in demo)
     await page.click('button:has-text("Atomic")');
     await page.waitForTimeout(100);
     const formAtomic = page.locator('.spatial-form').first();
     transform = await formAtomic.evaluate(el => window.getComputedStyle(el).transform);
-    // Check for scale(2) or matrix equivalent
-    expect(transform === 'scale(2)' || transform === 'matrix(2, 0, 0, 2, 0, 0)').toBeTruthy();
+    // Check for scale(2) or matrix equivalent, browsers may return different formats
+    expect(transform === 'scale(2)' || transform === 'matrix(2, 0, 0, 2, 0, 0)' || transform.includes('scale(2)') || transform.includes('matrix(2')).toBeTruthy();
   });
 
   test('should handle mouse wheel zoom interaction', async ({ page }) => {

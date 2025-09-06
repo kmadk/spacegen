@@ -160,7 +160,7 @@
         this.viewState = { x: 0, y: 0, zoom: 1.0 };
         this.updateSemanticLevel(); // Initialize semantic level
         this.setupEventListeners();
-        this.updateUI();
+        this.updateUI(); // This will set the initial semantic level text
       }
 
       setupEventListeners() {
@@ -190,6 +190,13 @@
         else level = 'atomic';
 
         this.currentSemanticLevel = level;
+        
+        // Immediately update the UI element if it exists
+        const levelEl = document.getElementById('semantic-level');
+        if (levelEl) {
+          levelEl.textContent = level;
+          levelEl.className = `semantic-level ${level}`;
+        }
       }
 
       addElements(elements) {

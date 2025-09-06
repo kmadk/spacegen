@@ -1,0 +1,37 @@
+{
+  "name": "@fir/figma-bridge",
+  "version": "0.1.0",
+  "description": "Bridge between Figma designs and spatial runtime elements",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@fir/spatial-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "jsdom": "^23.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "figma",
+    "design-to-code",
+    "spatial",
+    "bridge"
+  ]
+}
