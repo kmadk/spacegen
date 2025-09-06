@@ -1,0 +1,106 @@
+{
+  "graph": {
+    "edges": [
+      {
+        "from": "act.listUsers",
+        "kind": "bind.rows",
+        "to": "table.users"
+      },
+      {
+        "from": "pol.admin",
+        "kind": "guard.visible",
+        "to": "ui.button.delete"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "ui.frame.dashboard",
+        "kind": "ui.frame"
+      },
+      {
+        "id": "act.listUsers",
+        "kind": "action.query"
+      },
+      {
+        "id": "pol.admin",
+        "kind": "policy.role"
+      }
+    ]
+  },
+  "meta": {
+    "irHash": "ok123",
+    "strictMode": false
+  },
+  "ui": {
+    "nodes": [
+      {
+        "children": [
+          "table.users",
+          "chart.revenue"
+        ],
+        "id": "frame.dashboard",
+        "kind": "ui.frame",
+        "zoom": {
+          "dom": {
+            "behavior": "scale",
+            "max": 4,
+            "min": 0.25
+          }
+        }
+      },
+      {
+        "id": "table.users",
+        "kind": "ui.table",
+        "zoom": {
+          "semantic": {
+            "collapseTo": "summary.usersTable",
+            "level": 3,
+            "range": [
+              2,
+              4
+            ],
+            "renderHints": {
+              "sampleRows": 10,
+              "showChrome": false
+            }
+          }
+        }
+      },
+      {
+        "id": "chart.revenue",
+        "kind": "ui.chart",
+        "zoom": {
+          "semantic": {
+            "collapseTo": "summary.revenue",
+            "level": 3,
+            "range": [
+              2,
+              4
+            ],
+            "renderHints": {
+              "samplePoints": 200,
+              "showLabels": false
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSummaries": {
+    "nodes": [
+      {
+        "icon": "table",
+        "id": "summary.usersTable",
+        "kind": "ui.summary",
+        "text": "Users (50 columns)"
+      },
+      {
+        "icon": "chart",
+        "id": "summary.revenue",
+        "kind": "ui.summary",
+        "text": "Revenue trend"
+      }
+    ]
+  },
+  "version": "0.6.0"
+}

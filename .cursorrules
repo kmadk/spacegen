@@ -1,0 +1,332 @@
+# FIR: Figma IS the Runtime - Cursor Development Rules
+
+## Core Philosophy
+
+- Space IS the computer - all computation is spatial navigation
+- Design IS the application - no translation, no code generation
+- Position IS the program - coordinates determine behavior
+- Movement IS computation - navigation executes logic
+- The IR IS the platform - semantic intelligence layer
+
+## Architecture Principles
+
+### 1. Primitive-First Development
+
+Build ONE spatial primitive that configures into ALL applications:
+
+```typescript
+class SpatialPrimitive {
+  canvas: InfiniteCanvas; // The space
+  kernel: SpatialKernel; // The engine
+  ir: IRProcessor; // The intelligence
+}
+```
+
+### 2. IR-Centric Architecture
+
+The IR is not intermediate - it's THE representation:
+
+- Figma/Sketch/AI → IR (input adapters)
+- IR → Web/Native/Voice/AR (output runtimes)
+- IR carries semantic intelligence design tools can't express
+
+### 3. Spatial-Native Thinking
+
+No traditional web concepts:
+
+- ❌ pages, routes, URLs, components, state management
+- ✅ regions, journeys, coordinates, entities, position
+
+### 4. Enterprise-First Scaling
+
+Start with internal tools (1k-10k entities), scale to universes (millions):
+
+- Phase 1: Enterprise dashboards
+- Phase 2: Consumer applications
+- Phase 3: Infinite universes
+
+## Code Standards
+
+### TypeScript Configuration
+
+```typescript
+// Always strict mode
+{
+  "strict": true,
+  "noImplicitAny": true,
+  "strictNullChecks": true
+}
+```
+
+### Package Structure
+
+```
+packages/
+├── core/           # Spatial primitives (kernel, IR, engine)
+├── adapters/       # Input sources (Figma, Sketch, AI)
+├── runtimes/       # Output targets (Web, Native, Voice)
+└── tools/          # Developer tools (CLI, playground)
+```
+
+### Import Order
+
+1. Node.js built-ins
+2. External packages
+3. Workspace packages (@fir/\*)
+4. Relative imports
+5. Type imports
+
+### Naming Conventions
+
+#### Spatial Terms (Preferred)
+
+```typescript
+// Good
+interface SpatialRegion {}
+class ViewportController {}
+function calculateJourney() {}
+
+// Bad
+interface PageComponent {}
+class RouterService {}
+function navigateToRoute() {}
+```
+
+#### Semantic Types
+
+```typescript
+// IR node kinds follow semantic naming
+"ui.table"; // Not "TableComponent"
+"spatial.portal"; // Not "Link"
+"spatial.region"; // Not "Page"
+```
+
+## Testing Philosophy
+
+### Spatial Scenarios
+
+```typescript
+describe("When at position (1000, 500) at 10x zoom", () => {
+  it("should generate aggregate query", () => {
+    // Test position-based behavior
+  });
+});
+```
+
+### Journey Tests
+
+```typescript
+describe("Journey from overview to detail", () => {
+  it("should complete in under 1200ms", () => {
+    // Test navigation paths
+  });
+});
+```
+
+### No Traditional Tests
+
+- ❌ Component unit tests
+- ❌ Route testing
+- ❌ State management tests
+- ✅ Spatial behavior tests
+- ✅ Semantic zoom tests
+- ✅ Performance at scale tests
+
+## Performance Requirements
+
+### Core Metrics
+
+- 60fps minimum for all navigation
+- < 16ms frame time
+- < 100ms initial load
+- < 50MB memory for 10k entities
+
+### Optimization Strategies
+
+1. Viewport culling - only render visible
+2. Tile streaming - load spatial chunks
+3. LOD (Level of Detail) - less detail when zoomed out
+4. Spatial indexing - O(log n) queries
+
+## Development Workflow
+
+### 1. Start with IR
+
+```json
+// Define the semantic structure first
+{
+  "kind": "ui.table",
+  "position": { "x": 1000, "y": 500 },
+  "semantics": {
+    "standard": "paginated",
+    "system": "aggregated"
+  }
+}
+```
+
+### 2. Test Spatially
+
+```bash
+# Run spatial preview
+pnpm serve my-app.ir.json
+
+# Navigate with mouse/keyboard
+# Verify zoom semantics
+```
+
+### 3. Optimize for Scale
+
+- Start with 1k entities
+- Test with 10k
+- Optimize for 100k
+- Plan for millions
+
+## Anti-Patterns to Avoid
+
+### ❌ Never Do This
+
+```typescript
+// Traditional routing
+router.get('/dashboard', ...)
+
+// Component state
+useState({ ... })
+
+// API endpoints
+app.post('/api/users', ...)
+
+// CSS styling
+.className { ... }
+
+// Form validation
+validateForm(data)
+
+// Loading spinners
+<Loading />
+```
+
+### ✅ Always Do This
+
+```typescript
+// Spatial navigation
+navigateTo({ x: 1000, y: 500 });
+
+// Position as state
+getStateAtPosition(viewport);
+
+// Position generates queries
+generateQuery(viewport);
+
+// Semantic styling from IR
+node.semantics[zoomLevel];
+
+// Spatial constraints
+withinBounds(position, region);
+
+// Progressive reveal
+streamTilesForViewport(viewport);
+```
+
+## Security Model
+
+### Position-Based Permissions
+
+```typescript
+// Access determined by location
+canAccess(user, position) {
+  const region = getRegionAt(position)
+  return region.permissions.includes(user.role)
+}
+```
+
+### Zoom-Level Authorization
+
+```typescript
+// Deeper zoom needs higher auth
+canZoom(user, scale) {
+  if (scale < 0.1) return user.role === 'admin'
+  if (scale < 1) return user.role === 'user'
+  return true
+}
+```
+
+## Git Commit Messages
+
+### Format
+
+```
+<type>(<scope>): <subject>
+
+[optional body]
+
+[optional footer]
+```
+
+### Types
+
+- `spatial`: Spatial computing features
+- `ir`: IR processing/optimization
+- `kernel`: Spatial kernel changes
+- `adapter`: Input adapter changes
+- `runtime`: Output runtime changes
+- `perf`: Performance improvements
+- `docs`: Documentation
+
+### Examples
+
+```
+spatial(kernel): Add tile streaming for viewport
+
+ir(optimizer): Reduce node count by 50% through dead node elimination
+
+runtime(web): Implement WebGL renderer for 1M+ entities
+```
+
+## Comments and Documentation
+
+### Code Comments
+
+```typescript
+// Describe spatial behavior
+// "When user zooms past 10x, aggregate data"
+
+// Reference IR semantics
+// "Uses semantic.system level for overview"
+
+// Document performance characteristics
+// "O(log n) spatial query using R-tree index"
+```
+
+### JSDoc for Spatial APIs
+
+```typescript
+/**
+ * Navigate to a position in space with cinematic transition
+ * @param to - Target viewport position and scale
+ * @param options - Journey style (direct, scenic, dramatic)
+ * @returns Journey with waypoints and duration
+ */
+function navigateTo(to: Viewport, options?: NavigationOptions): Journey;
+```
+
+## Revolutionary Mindset
+
+Remember:
+
+1. We're not building better web apps - we're ending web apps
+2. We're not making development easier - we're making it obsolete
+3. We're not improving Figma - Figma IS becoming the computer
+4. Every design decision should make traditional development feel antiquated
+
+## The Prime Directive
+
+**Build the spatial primitive correctly, and every application becomes a configuration.**
+
+The primitive is eternal. Applications are ephemeral.
+
+---
+
+_Space IS the computer. Position IS the program. Movement IS computation._
+
+**Now go build the future.** 🚀
+

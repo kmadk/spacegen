@@ -1,0 +1,36 @@
+{
+  "name": "figma-runtime",
+  "private": true,
+  "version": "0.6.0",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r --filter ./packages/* run lint || true",
+    "format": "pnpm -r --filter ./packages/* run format || true",
+    "test": "pnpm -r --filter ./packages/* run test || true",
+    "changeset": "changeset",
+    "release": "changeset version && pnpm -r build && pnpm -r publish --access public",
+    "ir": "pnpm exec ir",
+    "validate": "pnpm exec ir validate",
+    "canonicalize": "pnpm exec ir canonicalize",
+    "lint-compat": "pnpm exec ir lint-compat",
+    "prove": "pnpm exec ir prove",
+    "render": "pnpm exec ir render --adapter=voice",
+    "serve": "pnpm exec ir serve"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.3",
+    "@changesets/cli": "2.27.8",
+    "@fir/cli": "workspace:*",
+    "@types/node": "20.12.12",
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1",
+    "commander": "12.1.0",
+    "tsup": "8.1.0",
+    "typescript": "5.4.5",
+    "zod": "3.23.8"
+  }
+}

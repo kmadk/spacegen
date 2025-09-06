@@ -1,0 +1,1 @@
+Use `pnpm changeset` to create release entries.

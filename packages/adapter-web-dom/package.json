@@ -1,0 +1,22 @@
+{
+  "name": "@fir/adapter-web-dom",
+  "version": "0.6.0",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "biome check --write . || true",
+    "format": "biome format --write . || true",
+    "test": "echo 'no tests yet'"
+  },
+  "devDependencies": {
+    "tsup": "8.1.0",
+    "typescript": "5.4.5",
+    "@biomejs/biome": "1.9.3"
+  }
+}

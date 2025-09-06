@@ -1,0 +1,106 @@
+{
+  "version": "0.6.0",
+  "meta": {
+    "strictMode": false,
+    "irHash": "ok123"
+  },
+  "ui": {
+    "nodes": [
+      {
+        "id": "frame.dashboard",
+        "kind": "ui.frame",
+        "zoom": {
+          "dom": {
+            "min": 0.25,
+            "max": 4,
+            "behavior": "scale"
+          }
+        },
+        "children": [
+          "table.users",
+          "chart.revenue"
+        ]
+      },
+      {
+        "id": "table.users",
+        "kind": "ui.table",
+        "zoom": {
+          "semantic": {
+            "level": 3,
+            "range": [
+              2,
+              4
+            ],
+            "collapseTo": "summary.usersTable",
+            "renderHints": {
+              "sampleRows": 10,
+              "showChrome": false
+            }
+          }
+        }
+      },
+      {
+        "id": "chart.revenue",
+        "kind": "ui.chart",
+        "zoom": {
+          "semantic": {
+            "level": 3,
+            "range": [
+              2,
+              4
+            ],
+            "collapseTo": "summary.revenue",
+            "renderHints": {
+              "samplePoints": 200,
+              "showLabels": false
+            }
+          }
+        }
+      }
+    ]
+  },
+  "uiSummaries": {
+    "nodes": [
+      {
+        "id": "summary.usersTable",
+        "kind": "ui.summary",
+        "text": "Users (50 columns)",
+        "icon": "table"
+      },
+      {
+        "id": "summary.revenue",
+        "kind": "ui.summary",
+        "text": "Revenue trend",
+        "icon": "chart"
+      }
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "ui.frame.dashboard",
+        "kind": "ui.frame"
+      },
+      {
+        "id": "act.listUsers",
+        "kind": "action.query"
+      },
+      {
+        "id": "pol.admin",
+        "kind": "policy.role"
+      }
+    ],
+    "edges": [
+      {
+        "from": "act.listUsers",
+        "to": "table.users",
+        "kind": "bind.rows"
+      },
+      {
+        "from": "pol.admin",
+        "to": "ui.button.delete",
+        "kind": "guard.visible"
+      }
+    ]
+  }
+}
