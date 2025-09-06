@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIR Spatial Runtime Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1a1a1a;
+      color: white;
+    }
+
+    #spatial-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      overflow: hidden;
+    }
+
+    .info-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-width: 300px;
+      z-index: 1001;
+    }
+
+    .semantic-level {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .universal { background: #ff6b6b; }
+    .system { background: #4ecdc4; }
+    .standard { background: #45b7d1; }
+    .atomic { background: #96ceb4; }
+
+    .controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1001;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      margin: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #5a6fd8;
+      transform: translateY(-1px);
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .spatial-form {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      min-width: 250px;
+      transform-origin: 0 0;
+    }
+
+    .spatial-form input, .spatial-form textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 2px solid #e1e1e1;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .spatial-form button {
+      background: #667eea;
+      color: white;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="spatial-container">
+    <!-- Info Panel -->
+    <div class="info-panel">
+      <h3>FIR Spatial Runtime Demo</h3>
+      <p>This demonstrates the hybrid rendering system with semantic zoom.</p>
+      
+      <div>
+        <strong>Current Zoom:</strong> <span id="zoom-level">1.00x</span>
+      </div>
+      <div>
+        <strong>Semantic Level:</strong> <span id="semantic-level" class="semantic-level standard">standard</span>
+      </div>
+      <div>
+        <strong>Elements:</strong> <span id="element-count">0</span>
+      </div>
+      
+      <p style="font-size: 12px; color: #ccc; margin-top: 15px;">
+        Try zooming in/out to see semantic levels change:<br>
+        • 0.01-0.1x: Universal (high-level summaries)<br>
+        • 0.1-0.5x: System (grouped data)<br>
+        • 0.5-2.0x: Standard (normal view)<br>
+        • 2.0x+: Atomic (maximum detail)
+      </p>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="zoom-controls">
+        <button onclick="setZoom(0.05)">Universal</button>
+        <button onclick="setZoom(0.3)">System</button>
+        <button onclick="setZoom(1.0)">Standard</button>
+        <button onclick="setZoom(3.0)">Atomic</button>
+      </div>
+      <button onclick="addSampleElements()">Add Elements</button>
+      <button onclick="clearElements()">Clear All</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // This would normally import from '@fir/spatial-runtime'
+    // For demo purposes, we'll simulate the spatial engine behavior
+    
+    class DemoSpatialEngine {
+      constructor(container) {
+        this.container = container;
+        this.elements = [];
+        this.viewState = { x: 0, y: 0, zoom: 1.0 };
+        this.updateSemanticLevel(); // Initialize semantic level
+        this.setupEventListeners();
+        this.updateUI();
+      }
+
+      setupEventListeners() {
+        // Simulate mouse wheel zooming
+        this.container.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const delta = e.deltaY * -0.001;
+          const newZoom = Math.max(0.01, Math.min(10, this.viewState.zoom + delta));
+          this.setZoom(newZoom);
+        });
+      }
+
+      setZoom(zoom) {
+        this.viewState.zoom = zoom;
+        this.updateSemanticLevel();
+        this.updateElements();
+        this.updateUI();
+      }
+
+      updateSemanticLevel() {
+        const zoom = this.viewState.zoom;
+        let level = 'standard';
+        
+        if (zoom <= 0.1) level = 'universal';
+        else if (zoom <= 0.5) level = 'system';
+        else if (zoom <= 2.0) level = 'standard';
+        else level = 'atomic';
+
+        this.currentSemanticLevel = level;
+      }
+
+      addElements(elements) {
+        elements.forEach(element => {
+          const htmlElement = this.createElement(element);
+          element.htmlElement = htmlElement;
+          this.container.appendChild(htmlElement);
+          this.elements.push(element);
+        });
+        
+        this.updateElements();
+        this.updateUI();
+      }
+
+      createElement(element) {
+        const div = document.createElement('div');
+        div.className = 'spatial-form';
+        div.innerHTML = `
+          <h4>${element.title}</h4>
+          <input type="text" placeholder="Your name" />
+          <textarea placeholder="Your message..." rows="3"></textarea>
+          <button type="submit">Submit</button>
+        `;
+        
+        // Position element
+        const x = element.position.x;
+        const y = element.position.y;
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+        
+        return div;
+      }
+
+      updateElements() {
+        const zoom = this.viewState.zoom;
+        
+        this.elements.forEach(element => {
+          if (element.htmlElement) {
+            // Apply semantic-based styling
+            const opacity = this.getSemanticOpacity();
+            const scale = Math.min(zoom, 2); // Cap scaling at 2x
+            
+            element.htmlElement.style.opacity = opacity;
+            element.htmlElement.style.transform = `scale(${scale})`;
+            
+            // Hide/show based on semantic level
+            if (this.currentSemanticLevel === 'universal' && this.elements.indexOf(element) > 2) {
+              element.htmlElement.style.display = 'none';
+            } else {
+              element.htmlElement.style.display = 'block';
+            }
+          }
+        });
+      }
+
+      getSemanticOpacity() {
+        switch (this.currentSemanticLevel) {
+          case 'universal': return 0.7;
+          case 'system': return 0.8;
+          case 'standard': return 1.0;
+          case 'atomic': return 1.0;
+          default: return 1.0;
+        }
+      }
+
+      clearElements() {
+        this.elements.forEach(element => {
+          if (element.htmlElement && element.htmlElement.parentNode) {
+            element.htmlElement.parentNode.removeChild(element.htmlElement);
+          }
+        });
+        this.elements = [];
+        this.updateUI();
+      }
+
+      updateUI() {
+        document.getElementById('zoom-level').textContent = this.viewState.zoom.toFixed(2) + 'x';
+        
+        const levelEl = document.getElementById('semantic-level');
+        levelEl.textContent = this.currentSemanticLevel;
+        levelEl.className = `semantic-level ${this.currentSemanticLevel}`;
+        
+        document.getElementById('element-count').textContent = this.elements.length;
+      }
+    }
+
+    // Initialize the demo
+    const container = document.getElementById('spatial-container');
+    const spatialEngine = new DemoSpatialEngine(container);
+
+    // Global functions for controls
+    window.setZoom = (zoom) => spatialEngine.setZoom(zoom);
+    
+    window.addSampleElements = () => {
+      const sampleElements = [
+        { 
+          id: 'form1', 
+          title: 'Contact Form', 
+          position: { x: 200, y: 200 },
+          type: 'form'
+        },
+        { 
+          id: 'form2', 
+          title: 'Feedback Form', 
+          position: { x: 600, y: 150 },
+          type: 'form'
+        },
+        { 
+          id: 'form3', 
+          title: 'Newsletter Signup', 
+          position: { x: 400, y: 400 },
+          type: 'form'
+        },
+        { 
+          id: 'form4', 
+          title: 'Survey Form', 
+          position: { x: 800, y: 300 },
+          type: 'form'
+        },
+        { 
+          id: 'form5', 
+          title: 'Login Form', 
+          position: { x: 300, y: 600 },
+          type: 'form'
+        }
+      ];
+      
+      spatialEngine.addElements(sampleElements);
+    };
+    
+    window.clearElements = () => spatialEngine.clearElements();
+
+    // Add some initial elements
+    window.addSampleElements();
+  </script>
+</body>
+</html>

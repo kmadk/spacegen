@@ -1,0 +1,44 @@
+{
+  "name": "@fir/spatial-runtime",
+  "version": "0.1.0",
+  "description": "High-performance spatial rendering engine with deck.gl and semantic zoom",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "deck.gl": "^8.9.0",
+    "@deck.gl/core": "^8.9.0",
+    "@deck.gl/layers": "^8.9.0",
+    "d3-zoom": "^3.0.0",
+    "d3-selection": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/d3-zoom": "^3.0.0",
+    "@types/d3-selection": "^3.0.0",
+    "jsdom": "^23.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "spatial",
+    "deck.gl",
+    "canvas",
+    "zoom",
+    "performance"
+  ]
+}

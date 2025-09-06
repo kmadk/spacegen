@@ -1,0 +1,35 @@
+{
+  "name": "fir",
+  "version": "0.1.0",
+  "description": "Transform Figma designs into complete full-stack spatial web applications",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "dev:serve": "node server.js",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean"
+  },
+  "keywords": [
+    "figma",
+    "spatial-computing",
+    "full-stack",
+    "design-to-code",
+    "deck.gl"
+  ],
+  "author": "FIR Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@playwright/test": "^1.45.0",
+    "turbo": "^1.10.0",
+    "typescript": "^5.2.0",
+    "vitest": "^1.0.0"
+  }
+}
