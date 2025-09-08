@@ -29,6 +29,14 @@ pids
 coverage/
 *.lcov
 
+# Cache directories
+.cache/
+*/.cache/
+**/.cache/
+**/cache/
+ai-analysis/
+**/ai-analysis/
+
 # OS generated files
 .DS_Store
 .DS_Store?

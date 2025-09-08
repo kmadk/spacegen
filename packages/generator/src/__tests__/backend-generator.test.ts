@@ -27,6 +27,9 @@ describe("BackendGenerator", () => {
   let mockOpenAI: ReturnType<typeof createMockOpenAI>;
 
   beforeEach(() => {
+    // Disable caching for tests to ensure predictable API calls
+    process.env.AI_CACHE_ENABLED = 'false';
+
     // Reset the shared mock and reassign it
     sharedMockOpenAI = createMockOpenAI();
     mockOpenAI = sharedMockOpenAI;
@@ -137,49 +140,54 @@ describe("BackendGenerator", () => {
         },
       ];
 
-      // Mock complete analysis responses for both text and vision analysis
+      // Mock cost-optimized batch analysis response (1 call)
       mockOpenAI.chat.completions.create = vi
         .fn()
-        // Text-based analysis calls (4 calls)
-        .mockResolvedValueOnce(
-          mockOpenAITextResponse(mockEntityAnalysisResponse),
-        )
-        .mockResolvedValueOnce(
-          mockOpenAITextResponse({ relationships: [], confidence: 0.8 }),
-        )
-        .mockResolvedValueOnce(
-          mockOpenAITextResponse({ endpoints: [], confidence: 0.8 }),
-        )
-        .mockResolvedValueOnce(
-          mockOpenAITextResponse({ dataTypes: [], confidence: 0.8 }),
-        )
-        // Vision analysis call (1 call)
         .mockResolvedValueOnce(
           mockOpenAITextResponse({
             entities: [
               {
-                name: "VisualElement",
-                tableName: "visual_elements",
-                description: "Element identified through vision analysis",
+                name: "Product",
+                tableName: "products",
+                description: "Product entity from batch analysis",
                 fields: [
                   {
                     name: "id",
                     type: "uuid",
                     required: true,
                     primary: true,
-                    description: "Identifier",
+                    description: "Product identifier",
+                  },
+                  {
+                    name: "name",
+                    type: "text",
+                    required: true,
+                    description: "Product name",
                   },
                 ],
                 indexes: [],
-                sourceElements: ["visual"],
-                confidence: 0.8,
-                reasoning: "Identified from screenshot analysis",
+                sourceElements: ["form"],
+                confidence: 0.85,
+                reasoning: "Product form detected in design",
               },
             ],
-            visualPatterns: ["card-layout", "form-input"],
             relationships: [],
-            insights: ["Vision analysis performed"],
-            confidence: 0.8,
+            endpoints: [
+              {
+                path: "/api/products",
+                method: "GET",
+                entity: "Product",
+                operation: "list",
+                description: "Get all products",
+              },
+            ],
+            seedData: [
+              {
+                entity: "Product",
+                sampleCount: 10,
+                description: "Sample products for testing",
+              },
+            ],
           }),
         );
 
@@ -189,7 +197,7 @@ describe("BackendGenerator", () => {
       );
 
       expect(result).toBeDefined();
-      expect(mockOpenAI.chat.completions.create).toHaveBeenCalledTimes(5); // 4 text + 1 vision
+      expect(mockOpenAI.chat.completions.create).toHaveBeenCalledTimes(1); // Cost-optimized batch analysis
     });
   });
 

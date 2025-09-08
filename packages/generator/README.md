@@ -8,13 +8,13 @@ The Figma Backend Generator analyzes your Figma designs to automatically infer d
 
 ## Key Features
 
-- **🎨 Figma Integration**: Direct integration with Figma files via API
-- **🤖 AI-Powered Analysis**: GPT-4 analyzes design patterns to infer data models
-- **🗄️ Database Generation**: Automatic PostgreSQL schema creation with proper relationships
-- **🔗 REST API Creation**: Complete Express.js APIs with TypeScript
-- **🚀 Production Deployment**: One-command deployment to Vercel + Supabase
-- **📊 Smart Seed Data**: AI-generated realistic test data
-- **⚡ High Performance**: Optimized caching and token usage
+- **Figma Integration**: Direct integration with Figma files via API
+- **AI-Powered Analysis**: GPT-5 analyzes design patterns to infer data models
+- **Database Generation**: Automatic PostgreSQL schema creation with proper relationships
+- **REST API Creation**: Complete Express.js APIs with TypeScript
+- **Production Deployment**: One-command deployment to Vercel + Supabase
+- **Smart Seed Data**: AI-generated realistic test data
+- **High Performance**: Optimized caching and token usage
 
 ## Installation
 
@@ -158,7 +158,7 @@ const generator = new BackendGenerator({
   cacheTimeout: 1800000, // 30 minutes
   
   // AI configuration
-  openaiModel: 'gpt-5',
+  openaiModel: 'gpt-5-turbo',
   maxTokens: 8000,
   temperature: 0.1,
   

@@ -204,7 +204,7 @@ export class OptimizedFigmaClient {
       version: lastVersion
     });
 
-    // TODO: Implement proper incremental diffing
+    // Future enhancement: implement proper incremental diffing
     // For now, return full data with isIncremental flag
     return {
       data: result.data,

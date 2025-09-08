@@ -444,4 +444,90 @@ describe('AIPatternAnalyzer Integration Tests', () => {
       );
     });
   });
+
+  describe('Cost-Optimized Batch Analysis', () => {
+    beforeEach(() => {
+      // Setup mock for batch analysis response
+      mockOpenAI.chat.completions.create = vi.fn()
+        .mockResolvedValue(mockOpenAITextResponse({
+          entities: [
+            {
+              name: 'User',
+              tableName: 'users',
+              fields: [
+                { name: 'id', type: 'uuid', required: true, primary: true },
+                { name: 'email', type: 'text', required: true },
+              ],
+              indexes: [],
+              confidence: 0.9,
+            }
+          ],
+          relationships: [],
+          endpoints: [
+            {
+              path: '/api/users',
+              method: 'GET',
+              entity: 'User',
+              operation: 'list'
+            }
+          ],
+          seedData: [
+            {
+              entity: 'User',
+              sampleCount: 5,
+              description: 'Sample users'
+            }
+          ]
+        }));
+    });
+
+    it('should perform cost-optimized batch analysis with single API call', async () => {
+      benchmark.start();
+      
+      const result = await analyzer.analyzeCostOptimized(mockFigmaDesignData);
+      
+      benchmark.measure('cost-optimized-batch-analysis');
+      
+      expect(result).toBeDefined();
+      expect(result.entities.entities).toHaveLength(1);
+      expect(result.relationships.relationships).toHaveLength(0);
+      expect(result.endpoints.endpoints).toHaveLength(1);
+      expect(result.seedData.dataTypes).toHaveLength(1);
+      
+      // Should make only one API call
+      expect(mockOpenAI.chat.completions.create).toHaveBeenCalledTimes(1);
+      
+      // Verify the API call uses batch prompt format
+      const callArgs = mockOpenAI.chat.completions.create.mock.calls[0][0];
+      expect(callArgs.messages[0].content).toContain('Analyze UI for backend gen');
+      expect(callArgs.messages[0].content).toContain('JSON');
+    });
+
+    it('should use cache for subsequent similar analyses', async () => {
+      // Enable caching for this test
+      process.env.AI_CACHE_ENABLED = 'true';
+      
+      // Create new analyzer with caching enabled
+      const cachingAnalyzer = new AIPatternAnalyzer(createTestAIConfig({
+        enableVision: false,
+        debug: true
+      }));
+
+      // First call
+      await cachingAnalyzer.analyzeCostOptimized(mockFigmaDesignData);
+      expect(mockOpenAI.chat.completions.create).toHaveBeenCalledTimes(1);
+
+      // Reset mock call count
+      mockOpenAI.chat.completions.create.mockClear();
+
+      // Second call with same data should use cache
+      const result = await cachingAnalyzer.analyzeCostOptimized(mockFigmaDesignData);
+      
+      expect(result).toBeDefined();
+      expect(mockOpenAI.chat.completions.create).toHaveBeenCalledTimes(0); // Should use cache
+
+      // Restore cache setting
+      process.env.AI_CACHE_ENABLED = 'false';
+    });
+  });
 });
