@@ -1,35 +1,89 @@
 {
-  "name": "fir",
-  "version": "0.1.0",
-  "description": "Transform Figma designs into complete full-stack spatial web applications",
+  "name": "figma-backend-generator",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Transform Figma designs into live backends in 60 seconds - AI-powered with GPT-5 optimization",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
   "workspaces": [
-    "packages/*"
+    "packages/generator",
+    "packages/figma-bridge",
+    "packages/infrastructure"
   ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "test": "turbo run test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "dev:serve": "node server.js",
+    "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean && rm -rf node_modules/.cache",
+    "publish:packages": "turbo run build && changeset publish",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "preinstall": "npx only-allow pnpm"
   },
   "keywords": [
     "figma",
-    "spatial-computing",
-    "full-stack",
+    "backend-generator",
+    "ai-powered",
     "design-to-code",
-    "deck.gl"
+    "vercel",
+    "supabase",
+    "gpt-5",
+    "full-stack"
   ],
   "author": "FIR Team",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.8.0",
+    "@changesets/cli": "^2.27.1",
     "@playwright/test": "^1.45.0",
-    "turbo": "^1.10.0",
-    "typescript": "^5.2.0",
-    "vitest": "^1.0.0"
+    "@types/node": "^20.14.10",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "@vitest/ui": "^1.6.0",
+    "eslint": "8",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.2.5",
+    "turbo": "^2.0.5",
+    "typescript": "^5.5.3",
+    "vitest": "^1.6.0"
+  },
+  "turbo": {
+    "tasks": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "dist/**"
+        ]
+      },
+      "dev": {
+        "cache": false
+      },
+      "test": {
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "typecheck": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "lint": {},
+      "clean": {
+        "cache": false
+      }
+    }
   }
 }

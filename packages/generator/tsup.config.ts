@@ -1,9 +1,9 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/cli.ts'],
   format: ['cjs', 'esm'],
-  dts: false, // Disable for now due to TS project config issues
+  dts: false, // Disable for now to focus on running tests
   splitting: false,
   sourcemap: true,
   clean: true,
@@ -11,5 +11,5 @@ export default defineConfig({
   minify: false,
   target: 'es2022',
   outDir: 'dist',
-  external: ['node-fetch', 'lru-cache']
+  external: ['openai', 'drizzle-orm', 'postgres', 'express', 'cors', 'zod']
 });

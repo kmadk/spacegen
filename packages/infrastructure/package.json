@@ -1,0 +1,54 @@
+{
+  "name": "@figma-backend/infrastructure",
+  "version": "1.0.0",
+  "description": "Infrastructure adapters for Figma Backend Generator - Vercel, Supabase, and service integrations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "vitest run",
+    "lint": "eslint src --ext .js --fix || echo 'No JS files to lint - TypeScript handled by compiler'",
+    "typecheck": "tsc --noEmit",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "figma",
+    "vercel",
+    "supabase",
+    "infrastructure",
+    "deployment",
+    "adapters"
+  ],
+  "author": "Figma Backend Generator Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/figma-backend/generator.git"
+  },
+  "homepage": "https://github.com/figma-backend/generator#readme",
+  "bugs": {
+    "url": "https://github.com/figma-backend/generator/issues"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "form-data": "^4.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

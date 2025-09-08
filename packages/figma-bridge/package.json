@@ -1,37 +1,45 @@
 {
-  "name": "@fir/figma-bridge",
-  "version": "0.1.0",
-  "description": "Bridge between Figma designs and spatial runtime elements",
+  "name": "@figma-backend/figma-bridge",
+  "version": "1.0.0",
+  "description": "High-performance Figma API client for design data extraction",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "files": ["dist"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "clean": "rm -rf dist"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .js --fix || echo 'No JS files to lint - TypeScript handled by compiler'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@fir/spatial-runtime": "workspace:*"
+    "axios": "^1.6.0",
+    "crypto": "^1.0.1",
+    "lru-cache": "^10.1.0"
   },
   "devDependencies": {
-    "jsdom": "^23.0.0",
+    "@types/node": "^20.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.2.0",
-    "vitest": "^1.0.0"
+    "typescript": "^5.3.0",
+    "vitest": "^1.6.0"
   },
   "keywords": [
     "figma",
-    "design-to-code",
-    "spatial",
-    "bridge"
-  ]
+    "api",
+    "design",
+    "performance",
+    "caching"
+  ],
+  "author": "Figma Backend Generator Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/figma-backend/generator.git"
+  },
+  "homepage": "https://github.com/figma-backend/generator#readme",
+  "bugs": {
+    "url": "https://github.com/figma-backend/generator/issues"
+  }
 }

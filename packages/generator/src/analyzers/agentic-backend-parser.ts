@@ -1,0 +1,474 @@
+/**
+ * Agentic Backend Parser
+ * Multi-step reasoning system using GPT-5's advanced capabilities
+ */
+
+import OpenAI from 'openai';
+import { createOpenAIParams } from '../utils/openai-utils.js';
+import type { 
+  DesignData, 
+  GeneratedProject, 
+  AIAnalysisConfig,
+  DataModel,
+  APIEndpoint 
+} from '../types.js';
+
+interface AnalysisStep {
+  id: string;
+  type: 'explore' | 'analyze' | 'validate' | 'refine' | 'synthesize';
+  description: string;
+  dependencies: string[];
+  priority: number;
+}
+
+interface AnalysisPlan {
+  strategy: string;
+  complexity: 'simple' | 'moderate' | 'complex';
+  steps: AnalysisStep[];
+  estimatedTime: number;
+}
+
+interface AnalysisContext {
+  plan: AnalysisPlan;
+  findings: Record<string, any>;
+  insights: string[];
+  confidence: number;
+  iterationCount: number;
+}
+
+export class AgenticBackendParser {
+  private openai?: OpenAI;
+  private config: AIAnalysisConfig;
+
+  constructor(config: AIAnalysisConfig) {
+    this.config = config;
+    
+    if (config.apiKey) {
+      this.openai = new OpenAI({ 
+        apiKey: config.apiKey,
+        dangerouslyAllowBrowser: false
+      });
+    }
+  }
+
+  /**
+   * Main agentic parsing entry point
+   */
+  async parseDesignAgentic(designData: DesignData): Promise<GeneratedProject> {
+    if (!this.openai) {
+      throw new Error('OpenAI API key required for agentic parsing');
+    }
+
+    if (this.config.debug) {
+      console.log('🤖 Starting agentic backend parsing with GPT-5...');
+    }
+
+    try {
+      // Step 1: Planning Agent - Determine analysis strategy
+      const plan = await this.planAnalysis(designData);
+      
+      if (this.config.debug) {
+        console.log('📋 Analysis Plan:', {
+          strategy: plan.strategy,
+          complexity: plan.complexity,
+          steps: plan.steps.length,
+          estimatedTime: plan.estimatedTime
+        });
+      }
+
+      // Step 2: Iterative Analysis with Self-Reflection
+      let context: AnalysisContext = {
+        plan,
+        findings: {},
+        insights: [],
+        confidence: 0,
+        iterationCount: 0
+      };
+
+      for (const step of plan.steps) {
+        context = await this.executeAnalysisStep(step, context, designData);
+        
+        // Self-validation and refinement after each step
+        if (step.type !== 'validate') {
+          context = await this.validateAndRefine(context, designData);
+        }
+
+        if (this.config.debug) {
+          console.log(`✅ Completed step: ${step.description} (confidence: ${context.confidence})`);
+        }
+      }
+
+      // Step 3: Final Integration & Synthesis
+      const result = await this.synthesizeFinalBackend(context, designData);
+
+      if (this.config.debug) {
+        console.log('🎯 Agentic parsing complete:', {
+          models: result.models.length,
+          endpoints: result.endpoints.length,
+          files: result.files.length,
+          finalConfidence: context.confidence
+        });
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('❌ Agentic parsing failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Planning Agent: Analyzes design and creates strategic analysis plan
+   */
+  private async planAnalysis(designData: DesignData): Promise<AnalysisPlan> {
+    const prompt = `# Analysis Planning Task
+
+You are a senior backend architect planning the analysis of a design file to generate a complete backend system.
+
+## Design Overview
+- Source: ${designData.source}
+- File: ${designData.fileName}
+- Nodes: ${designData.nodes.length} components
+- Has Screenshots: ${designData.screenshots ? 'Yes' : 'No'}
+
+## Sample Design Elements
+${designData.nodes.slice(0, 5).map(node => 
+  `- ${node.name} (${node.type}): "${node.characters || 'visual element'}"`
+).join('\n')}
+
+## Your Task
+Analyze this design and create a strategic plan for backend generation. Consider:
+
+1. **Complexity Assessment**: How complex is this application?
+2. **Analysis Strategy**: What approach will yield the best results?
+3. **Step Planning**: What specific analysis steps are needed?
+4. **Dependencies**: How do steps depend on each other?
+
+Think through this step by step, then provide your analysis plan.
+
+Return your response as JSON in exactly this format:
+{
+  "reasoning": "Your step-by-step thinking about this design",
+  "strategy": "Brief description of your overall approach",
+  "complexity": "simple|moderate|complex",
+  "steps": [
+    {
+      "id": "step_1",
+      "type": "explore|analyze|validate|refine|synthesize",
+      "description": "What this step accomplishes",
+      "dependencies": ["step_id_1", "step_id_2"],
+      "priority": 1
+    }
+  ],
+  "estimatedTime": 180
+}`;
+
+    const apiParams = createOpenAIParams({
+      model: this.config.model || 'gpt-5',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert backend architect and system planner. Think step by step and create comprehensive analysis plans.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      maxTokens: this.config.maxTokens || 8000,
+      response_format: { type: 'json_object' }
+    });
+
+    const response = await this.openai!.chat.completions.create(apiParams);
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      strategy: result.strategy,
+      complexity: result.complexity,
+      steps: result.steps,
+      estimatedTime: result.estimatedTime
+    };
+  }
+
+  /**
+   * Execute individual analysis step with context awareness
+   */
+  private async executeAnalysisStep(
+    step: AnalysisStep, 
+    context: AnalysisContext, 
+    designData: DesignData
+  ): Promise<AnalysisContext> {
+    
+    const prompt = this.buildStepPrompt(step, context, designData);
+    
+    const apiParams = createOpenAIParams({
+      model: this.config.model || 'gpt-5',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert backend developer performing detailed analysis. Use your reasoning to deeply understand the design and provide comprehensive insights.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      maxTokens: this.config.maxTokens || 8000,
+      response_format: { type: 'json_object' }
+    });
+
+    const response = await this.openai!.chat.completions.create(apiParams);
+    const stepResult = JSON.parse(response.choices[0].message.content || '{}');
+
+    // Update context with new findings
+    context.findings[step.id] = stepResult;
+    context.insights.push(...(stepResult.insights || []));
+    context.confidence = stepResult.confidence || context.confidence;
+    context.iterationCount++;
+
+    return context;
+  }
+
+  /**
+   * Validation Agent: Reviews and refines analysis results
+   */
+  private async validateAndRefine(
+    context: AnalysisContext, 
+    designData: DesignData
+  ): Promise<AnalysisContext> {
+    
+    const prompt = `# Analysis Validation & Refinement
+
+You are reviewing the current analysis findings for quality and consistency.
+
+## Current Findings
+${JSON.stringify(context.findings, null, 2)}
+
+## Current Insights
+${context.insights.join('\n- ')}
+
+## Current Confidence: ${context.confidence}
+
+## Your Tasks
+1. **Quality Check**: Are the findings accurate and complete?
+2. **Consistency Check**: Do all findings align with each other?
+3. **Gap Analysis**: What important aspects might be missing?
+4. **Refinement**: How can we improve the analysis?
+
+Think through each finding critically, then provide your validation results.
+
+Return your response as JSON format:
+{
+  "reasoning": "Your detailed validation thoughts",
+  "qualityScore": 0.85,
+  "consistencyIssues": ["issue 1", "issue 2"],
+  "missingAspects": ["aspect 1", "aspect 2"],
+  "refinedFindings": {}, 
+  "additionalInsights": ["insight 1"],
+  "updatedConfidence": 0.9
+}`;
+
+    const apiParams = createOpenAIParams({
+      model: this.config.model || 'gpt-5',
+      messages: [
+        {
+          role: 'system', 
+          content: 'You are a senior code reviewer and system architect. Be thorough and critical in your validation.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      maxTokens: this.config.maxTokens || 8000,
+      response_format: { type: 'json_object' }
+    });
+
+    const response = await this.openai!.chat.completions.create(apiParams);
+    const validation = JSON.parse(response.choices[0].message.content || '{}');
+
+    // Apply refinements
+    if (validation.refinedFindings) {
+      Object.assign(context.findings, validation.refinedFindings);
+    }
+    
+    if (validation.additionalInsights) {
+      context.insights.push(...validation.additionalInsights);
+    }
+    
+    context.confidence = validation.updatedConfidence || context.confidence;
+
+    return context;
+  }
+
+  /**
+   * Synthesis Agent: Integrates all findings into final backend project
+   */
+  private async synthesizeFinalBackend(
+    context: AnalysisContext, 
+    designData: DesignData
+  ): Promise<GeneratedProject> {
+    
+    const prompt = `# Backend Synthesis Task
+
+You are generating the final backend project from comprehensive analysis findings.
+
+## Analysis Context
+- Strategy: ${context.plan.strategy}
+- Confidence: ${context.confidence}
+- Iterations: ${context.iterationCount}
+
+## All Findings
+${JSON.stringify(context.findings, null, 2)}
+
+## Key Insights
+${context.insights.join('\n- ')}
+
+## Your Task
+Synthesize all findings into a complete, production-ready backend project with:
+1. Database models with proper relationships
+2. REST API endpoints with full CRUD operations
+3. Database migration files
+4. Seed data
+5. API documentation
+
+Return comprehensive JSON response with all backend components.`;
+
+    const apiParams = createOpenAIParams({
+      model: this.config.model || 'gpt-5',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a senior full-stack architect creating production-ready backends. Generate complete, professional code.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      maxTokens: this.config.maxTokens || 8000,
+      response_format: { type: 'json_object' }
+    });
+
+    const response = await this.openai!.chat.completions.create(apiParams);
+    const synthesis = JSON.parse(response.choices[0].message.content || '{}');
+
+    // Convert synthesis to GeneratedProject format
+    return this.convertToGeneratedProject(synthesis, designData);
+  }
+
+  /**
+   * Build context-aware prompt for each analysis step
+   */
+  private buildStepPrompt(
+    step: AnalysisStep, 
+    context: AnalysisContext, 
+    designData: DesignData
+  ): string {
+    const baseContext = `
+# ${step.description}
+
+## Current Context
+- Analysis Strategy: ${context.plan.strategy}
+- Completed Steps: ${context.iterationCount}
+- Current Confidence: ${context.confidence}
+- Previous Insights: ${context.insights.slice(-3).join(', ')}
+
+## Design Data
+- File: ${designData.fileName} 
+- Components: ${designData.nodes.length}
+- Sample Elements: ${designData.nodes.slice(0, 3).map(n => n.name).join(', ')}
+
+## Previous Findings
+${Object.keys(context.findings).map(key => 
+  `${key}: ${JSON.stringify(context.findings[key]).substring(0, 200)}...`
+).join('\n')}`;
+
+    const stepSpecificPrompts = {
+      explore: `${baseContext}
+
+## Your Task: Deep Exploration
+Explore the design elements to understand the application domain, user flows, and data patterns. Look for:
+- What type of application is this?
+- What are the main user personas and use cases?
+- What data entities can you identify from the UI patterns?
+- What business logic is implied by the interface?
+
+Think step by step and provide deep insights. Return your response as JSON format.`,
+
+      analyze: `${baseContext}
+
+## Your Task: Technical Analysis  
+Perform detailed technical analysis based on exploration findings. Focus on:
+- Database schema design with proper normalization
+- API endpoint patterns and RESTful design
+- Data relationships and constraints
+- Performance considerations
+
+Be comprehensive and technical. Return your response as JSON format.`,
+
+      validate: `${baseContext}
+
+## Your Task: Validation & Quality Check
+Validate the analysis findings for technical accuracy and completeness:
+- Are the data models properly normalized?
+- Do the relationships make business sense?
+- Are there any missing CRUD operations?
+- Is the API design following best practices?
+
+Be critical and thorough. Return your response as JSON format.`,
+
+      refine: `${baseContext}
+
+## Your Task: Refinement & Optimization
+Refine and optimize the current findings:
+- Improve data model design
+- Add missing edge cases
+- Optimize API endpoint design
+- Add proper validation and constraints
+
+Focus on production readiness. Return your response as JSON format.`,
+
+      synthesize: `${baseContext}
+
+## Your Task: Final Synthesis
+Synthesize all findings into cohesive backend components:
+- Finalize database models
+- Complete API endpoint definitions
+- Generate proper file structure
+- Add deployment configurations
+
+Create a production-ready backend. Return your response as JSON format.`
+    };
+
+    return stepSpecificPrompts[step.type] || baseContext;
+  }
+
+  /**
+   * Convert synthesis results to standard GeneratedProject format
+   */
+  private convertToGeneratedProject(synthesis: any, designData: DesignData): GeneratedProject {
+    // Extract and format models, endpoints, files from synthesis
+    const models: DataModel[] = synthesis.models || [];
+    const endpoints: APIEndpoint[] = synthesis.endpoints || [];
+    const files: any[] = synthesis.files || [];
+
+    return {
+      models,
+      endpoints,
+      files,
+      config: {
+        projectName: designData.fileName || 'Generated Project',
+        database: synthesis.database || { type: 'postgresql' },
+        framework: synthesis.framework || 'express'
+      },
+      deploymentFiles: synthesis.deploymentFiles || [],
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        source: 'agentic-parser',
+        version: '1.0.0'
+      }
+    };
+  }
+}
