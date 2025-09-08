@@ -2,7 +2,7 @@
  * Test utilities and helpers
  */
 
-import { vi, type MockedFunction } from 'vitest';
+import { vi, expect, type MockedFunction } from 'vitest';
 import type OpenAI from 'openai';
 import type { 
   AIAnalysisConfig, 

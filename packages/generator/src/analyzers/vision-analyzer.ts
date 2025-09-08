@@ -18,16 +18,18 @@ import type {
   DesignScreenshot,
 } from "../types.js";
 import { createOpenAIParams } from "../utils/openai-utils.js";
+import { createLogger } from "../utils/logger.js";
 
 export class VisionAnalyzer {
   private openai?: OpenAI;
   private config: AIAnalysisConfig;
   private useVision: boolean;
+  private logger = createLogger('VisionAnalyzer');
 
   constructor(config: AIAnalysisConfig) {
     this.config = {
       model: process.env.OPENAI_VISION_MODEL || "gpt-5",
-      maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || "4000"),
+      maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || "8000"), // Increased for GPT-5 vision
       temperature: parseFloat(process.env.OPENAI_TEMPERATURE || "0.1"),
       enableVision: true,
       ...config,
@@ -66,12 +68,9 @@ export class VisionAnalyzer {
     }
 
     if (this.config.debug) {
-      console.log(
-        "🎯 Starting GPT-5 vision analysis of design screenshots...",
-        {
-          screenshotCount: screenshots.length,
-        },
-      );
+      this.logger.debug('Starting GPT-5 vision analysis of design screenshots...', {
+        screenshotCount: screenshots.length,
+      });
     }
 
     try {
@@ -83,7 +82,7 @@ export class VisionAnalyzer {
       // Combine results from all screenshots
       return this.combineVisionResults(results);
     } catch (error) {
-      console.warn("⚠️ Vision analysis failed:", error);
+      this.logger.warn('Vision analysis failed:', error);
       return {
         entities: [],
         relationships: [],
@@ -105,15 +104,16 @@ export class VisionAnalyzer {
     const prompt = this.buildVisionAnalysisPrompt(screenshot);
 
     if (this.config.debug) {
-      console.log(`🔍 Analyzing screenshot: ${screenshot.name}`);
+      this.logger.progress(`Analyzing screenshot: ${screenshot.name}`);
     }
 
-    const apiParams = createOpenAIParams({
-      model: this.config.model!,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert database architect and UI/UX analyst with deep expertise in visual pattern recognition.
+    try {
+      const apiParams = createOpenAIParams({
+        model: this.config.model!,
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert database architect and UI/UX analyst with deep expertise in visual pattern recognition.
 
 Your task is to analyze design screenshots and identify database entities, relationships, and data patterns that would power the application.
 
@@ -125,33 +125,44 @@ Key capabilities:
 - Generate realistic database schemas from visual cues
 
 Focus on practical, production-ready database design based on what you see in the interface.`,
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: prompt,
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: screenshot.imageUrl,
-                detail: "high", // High detail for better pattern recognition
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: prompt,
               },
-            },
-          ],
-        } as any,
-      ],
-      maxTokens: this.config.maxTokens,
-      temperature: this.config.temperature,
-      response_format: { type: "json_object" },
-    });
+              {
+                type: "image_url",
+                image_url: {
+                  url: screenshot.imageUrl,
+                  detail: "high", // High detail for better pattern recognition
+                },
+              },
+            ],
+          } as any,
+        ],
+        maxTokens: this.config.maxTokens,
+        temperature: this.config.temperature,
+        response_format: { type: "json_object" },
+      });
 
-    const response = await this.openai!.chat.completions.create(apiParams);
-    const analysis = JSON.parse(response.choices[0].message.content || "{}");
+      const response = await this.openai!.chat.completions.create(apiParams);
+      const analysis = JSON.parse(response.choices[0].message.content || "{}");
 
-    return this.validateVisionAnalysis(analysis, screenshot);
+      return this.validateVisionAnalysis(analysis, screenshot);
+    } catch (error) {
+      this.logger.warn('Vision analysis failed:', error);
+      // Return empty fallback for failed analysis
+      return {
+        entities: [],
+        relationships: [],
+        insights: [`Vision analysis failed for ${screenshot.name}: ${error instanceof Error ? error.message : "Unknown error"}`],
+        confidence: 0,
+        visualPatterns: [],
+      };
+    }
   }
 
   /**

@@ -39,7 +39,7 @@ export function createOpenAIParams(params: OpenAIParams): any {
   }
 
   // Use max_completion_tokens for newer models, max_tokens for older models
-  const tokenLimit = params.maxTokens || (isGPT5 ? 8000 : 4000);
+  const tokenLimit = params.maxTokens || (isGPT5 ? 16000 : 4000); // GPT-5 gets higher limit
   if (isGPT5) {
     apiParams.max_completion_tokens = tokenLimit;
   } else {

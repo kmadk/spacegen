@@ -5,7 +5,6 @@
 
 import OpenAI from 'openai';
 import { createOpenAIParams } from '../utils/openai-utils.js';
-import { createLogger } from '../utils/logger.js';
 import type { 
   DesignData, 
   GeneratedProject, 
@@ -40,7 +39,6 @@ interface AnalysisContext {
 export class AgenticBackendParser {
   private openai?: OpenAI;
   private config: AIAnalysisConfig;
-  private logger = createLogger('AgenticBackendParser');
 
   constructor(config: AIAnalysisConfig) {
     this.config = config;
@@ -115,7 +113,7 @@ export class AgenticBackendParser {
       return result;
 
     } catch (error) {
-      this.logger.error('Agentic parsing failed:', error);
+      console.error('❌ Agentic parsing failed:', error);
       throw error;
     }
   }

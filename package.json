@@ -1,7 +1,6 @@
 {
   "name": "figma-backend-generator",
-  "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Transform Figma designs into live backends in 60 seconds - AI-powered with GPT-5 optimization",
   "type": "module",
   "engines": {

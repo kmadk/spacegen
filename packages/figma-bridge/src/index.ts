@@ -44,7 +44,7 @@ export function createOptimizedFigmaClient(config: {
       maxSize: config.cacheSize ?? 100,
       ttl: 1000 * 60 * 30 // 30 minutes
     },
-    timeout: config.timeout ?? 30000,
+    timeout: config.timeout ?? 60000, // Increased to 60 seconds for AI operations
     retryAttempts: 3,
     retryDelay: 1000,
     enableMetrics: true

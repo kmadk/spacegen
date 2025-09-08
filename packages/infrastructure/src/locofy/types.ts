@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const LocofyConfigSchema = z.object({
   projectPath: z.string(),
   syncEnabled: z.boolean().default(true),
-  timeout: z.number().int().positive().default(30000),
+  timeout: z.number().int().positive().default(60000), // 60 seconds for AI operations
   figmaFileId: z.string().optional(),
   outputDirectory: z.string().default('./locofy-output')
 });

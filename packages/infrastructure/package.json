@@ -1,6 +1,6 @@
 {
   "name": "@figma-backend/infrastructure",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Infrastructure adapters for Figma Backend Generator - Vercel, Supabase, and service integrations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,11 +27,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/figma-backend/generator.git"
+    "url": "https://github.com/kmadk/spacegen.git"
   },
-  "homepage": "https://github.com/figma-backend/generator#readme",
+  "homepage": "https://github.com/kmadk/spacegen#readme",
   "bugs": {
-    "url": "https://github.com/figma-backend/generator/issues"
+    "url": "https://github.com/kmadk/spacegen/issues"
   },
   "dependencies": {
     "axios": "^1.6.0",

@@ -46,7 +46,7 @@ export class OptimizedFigmaClient {
     // Initialize HTTP client
     this.client = axios.create({
       baseURL: config.baseUrl || 'https://api.figma.com/v1',
-      timeout: config.timeout || 30000,
+      timeout: config.timeout || 60000, // Increased to 60 seconds for AI operations
       headers: {
         'X-Figma-Token': config.accessToken,
         'Content-Type': 'application/json',

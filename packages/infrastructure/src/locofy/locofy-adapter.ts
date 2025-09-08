@@ -367,7 +367,7 @@ export class LocofyAdapter extends BaseAdapter {
         config: {},
         lastDeployment: {
           id: 'deploy-123',
-          url: 'https://my-app.vercel.app',
+          url: `https://${this.config.projectName || 'my-app'}.vercel.app`,
           status: 'success',
           deployedAt: new Date().toISOString()
         }

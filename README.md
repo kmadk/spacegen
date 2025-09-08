@@ -5,14 +5,14 @@ Transform Figma designs into production-ready backends using AI-powered analysis
 ## Quick Start
 
 ```bash
-# Install
+# Install globally
 npm install -g @figma-backend/generator
 
 # Generate backend from Figma file
-figma-backend ABC123 --project-name my-app
+figma-backend --figma-file YOUR_FIGMA_FILE_ID --project-name my-app --openai-key sk-... --figma-token figd_...
 
 # Generate and deploy to production
-figma-backend ABC123 --project-name my-app --deploy
+figma-backend --figma-file YOUR_FIGMA_FILE_ID --project-name my-app --openai-key sk-... --figma-token figd_... --deploy
 ```
 
 ## What You Get
@@ -32,25 +32,37 @@ From any Figma file to complete live backend:
 3. **Backend Generation** - Database schema + API endpoints created
 4. **Deployment** - Live app deployed to Vercel + Supabase
 
-## API Usage
+## CLI Usage
+
+```bash
+# View all options
+figma-backend --help
+
+# Basic generation
+figma-backend --figma-file ABC123 --project-name "my-ecommerce-app" --openai-key sk-... --figma-token figd_...
+
+# With deployment
+figma-backend --figma-file ABC123 --project-name "my-app" --openai-key sk-... --figma-token figd_... --deploy
+
+# Using environment variables
+export OPENAI_API_KEY=sk-...
+export FIGMA_ACCESS_TOKEN=figd_...
+figma-backend --figma-file ABC123 --project-name "my-app"
+```
+
+## Programmatic API Usage
 
 ```typescript
-import { FigmaBackendGenerator } from '@figma-backend/generator';
+import { BackendGenerator } from '@figma-backend/generator';
 
-const generator = new FigmaBackendGenerator({
-  figmaAccessToken: 'figd_...',
-  openaiApiKey: 'sk-...',
-  vercelToken: 'vrc_...',      // Optional: for deployment
-  supabaseToken: 'sb_...',     // Optional: for deployment
-  projectName: 'my-app'
+const generator = new BackendGenerator({
+  projectName: 'my-app',
+  openaiApiKey: process.env.OPENAI_API_KEY,
+  figmaAccessToken: process.env.FIGMA_ACCESS_TOKEN
 });
 
-// Generate backend code only
-const backend = await generator.generate('YOUR_FIGMA_FILE_ID');
-
-// Generate and deploy to live app  
-const liveApp = await generator.deploy('YOUR_FIGMA_FILE_ID');
-console.log('Live app:', liveApp.url);
+const result = await generator.generateFromFigmaFile('YOUR_FIGMA_FILE_ID');
+console.log(`Generated ${result.models.length} models, ${result.endpoints.length} endpoints`);
 ```
 
 ## Design Guidelines
@@ -71,10 +83,26 @@ For optimal results, design with these patterns:
 
 ## Setup
 
-1. **Figma Token** - [Figma Settings](https://www.figma.com/settings) → Personal Access Tokens
-2. **OpenAI Key** - [OpenAI Platform](https://platform.openai.com/api-keys)  
-3. **Vercel Token** - [Vercel Dashboard](https://vercel.com/account/tokens) (for deployment)
-4. **Supabase Token** - [Supabase Dashboard](https://supabase.com/dashboard/account/tokens) (for deployment)
+### 1. Install the CLI
+```bash
+npm install -g @figma-backend/generator
+```
+
+### 2. Get API Keys
+- **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/api-keys)
+- **Figma Token**: [Get from Figma Settings](https://www.figma.com/settings) → Personal Access Tokens
+- **Vercel Token**: [Get from Vercel Dashboard](https://vercel.com/account/tokens) (optional, for deployment)
+- **Supabase Token**: [Get from Supabase Dashboard](https://supabase.com/dashboard/account/tokens) (optional, for deployment)
+
+### 3. Set Environment Variables (Optional)
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit .env with your API keys
+OPENAI_API_KEY=sk-...
+FIGMA_ACCESS_TOKEN=figd_...
+```
 
 ## Example Output
 

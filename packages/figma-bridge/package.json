@@ -1,6 +1,6 @@
 {
   "name": "@figma-backend/figma-bridge",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "High-performance Figma API client for design data extraction",
   "type": "module",
   "main": "dist/index.js",
@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "crypto": "^1.0.1",
     "lru-cache": "^10.1.0"
   },
   "devDependencies": {
@@ -36,10 +35,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/figma-backend/generator.git"
+    "url": "https://github.com/kmadk/spacegen.git"
   },
-  "homepage": "https://github.com/figma-backend/generator#readme",
+  "homepage": "https://github.com/kmadk/spacegen#readme",
   "bugs": {
-    "url": "https://github.com/figma-backend/generator/issues"
+    "url": "https://github.com/kmadk/spacegen/issues"
   }
 }

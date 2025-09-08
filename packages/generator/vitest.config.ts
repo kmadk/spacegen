@@ -61,7 +61,7 @@ export default defineConfig({
       '**/test-helpers.ts',
       '**/fixtures/**',
       '**/utils/**',
-      '**/*.bench.test.ts' // Exclude benchmark tests from regular test run
+      // '**/*.bench.test.ts' // Exclude benchmark tests from regular test run
     ],
     
     // Parallel execution
