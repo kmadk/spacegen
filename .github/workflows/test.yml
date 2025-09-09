@@ -85,7 +85,7 @@ jobs:
         # Add API keys for real integration tests (use secrets)
         FIGMA_API_TOKEN: ${{ secrets.FIGMA_API_TOKEN }}
         PENPOT_API_TOKEN: ${{ secrets.PENPOT_API_TOKEN }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
         
     - name: Archive test artifacts
       uses: actions/upload-artifact@v4

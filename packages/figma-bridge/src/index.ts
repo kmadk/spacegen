@@ -3,7 +3,8 @@
  * Optimized for design-to-backend generation workflows
  */
 
-export { OptimizedFigmaClient } from './client/figma-client';
+import { OptimizedFigmaClient } from './client/figma-client';
+export { OptimizedFigmaClient };
 export { FigmaCache } from './cache/figma-cache';
 export { DesignRelevanceFilter, type ComponentPattern, type ComponentField } from './filters/design-relevance';
 
@@ -23,10 +24,10 @@ export type {
   FigmaNodeType,
   FigmaPerformanceMetrics,
   FigmaCacheEntry,
-  FigmaCacheOptions,
-  FigmaAPIError,
-  FigmaRateLimitError
+  FigmaCacheOptions
 } from './types/figma-types';
+
+export { FigmaAPIError, FigmaRateLimitError } from './types/figma-types';
 
 export type { FigmaClientConfig } from './client/figma-client';
 

@@ -18,6 +18,15 @@ interface CLIArgs {
   help?: boolean;
 }
 
+// API key validation functions
+function validateOpenAIKey(key: string): boolean {
+  return key.startsWith('sk-') && key.length > 20;
+}
+
+function validateFigmaToken(token: string): boolean {
+  return token.startsWith('figd_') && token.length > 20;
+}
+
 function parseArgs(): CLIArgs {
   const args: CLIArgs = {};
   const argv = process.argv.slice(2);
@@ -114,6 +123,11 @@ async function main() {
     process.exit(1);
   }
 
+  if (!validateOpenAIKey(openaiKey)) {
+    console.error('❌ Error: Invalid OpenAI API key format. Expected format: sk-...');
+    process.exit(1);
+  }
+
   if (!args.projectName) {
     console.error('❌ Error: Project name required. Use --project-name');
     process.exit(1);
@@ -126,6 +140,11 @@ async function main() {
       
       if (!figmaToken) {
         console.error('❌ Error: Figma access token required for Figma files. Use --figma-token or set FIGMA_ACCESS_TOKEN environment variable.');
+        process.exit(1);
+      }
+
+      if (!validateFigmaToken(figmaToken)) {
+        console.error('❌ Error: Invalid Figma token format. Expected format: figd_...');
         process.exit(1);
       }
 

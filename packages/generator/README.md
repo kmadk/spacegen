@@ -41,18 +41,20 @@ figma-backend --figma-file ABC123 --project-name my-app --openai-key sk-... --fi
 ### Programmatic Usage
 
 ```typescript
-import { BackendGenerator } from '@figma-backend/generator';
+import { BackendGenerator } from "@figma-backend/generator";
 
 const generator = new BackendGenerator({
-  projectName: 'my-ecommerce-app',
-  openaiApiKey: process.env.OPENAI_API_KEY,
+  projectName: "my-ecommerce-app",
+  openaiApiKey: process.env.OPEN_AI_API_KEY,
   figmaAccessToken: process.env.FIGMA_ACCESS_TOKEN,
-  debug: true
+  debug: true,
 });
 
 // Generate from Figma file
-const result = await generator.generateFromFigmaFile('ABC123');
-console.log(`✅ Generated ${result.models.length} models, ${result.endpoints.length} endpoints`);
+const result = await generator.generateFromFigmaFile("ABC123");
+console.log(
+  `✅ Generated ${result.models.length} models, ${result.endpoints.length} endpoints`
+);
 ```
 
 ## What Gets Generated
@@ -84,17 +86,17 @@ CREATE TABLE products (
 
 ```typescript
 // Generated Express.js routes
-router.get('/users', async (req, res) => {
+router.get("/users", async (req, res) => {
   const users = await db.select().from(usersTable);
   res.json(users);
 });
 
-router.post('/users', async (req, res) => {
+router.post("/users", async (req, res) => {
   const newUser = await db.insert(usersTable).values(req.body).returning();
   res.status(201).json(newUser[0]);
 });
 
-router.get('/products', async (req, res) => {
+router.get("/products", async (req, res) => {
   const products = await db.select().from(productsTable);
   res.json(products);
 });
@@ -108,8 +110,8 @@ export default function ProductsPage() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch('/api/products')
-      .then(res => res.json())
+    fetch("/api/products")
+      .then((res) => res.json())
       .then(setProducts);
   }, []);
 
@@ -117,7 +119,7 @@ export default function ProductsPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Products</h1>
       <div className="grid gap-4">
-        {products.map(product => (
+        {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
@@ -139,7 +141,7 @@ export default function ProductsPage() {
 ### Environment Variables
 
 ```bash
-OPENAI_API_KEY=sk-...           # OpenAI API key for AI analysis
+OPEN_AI_API_KEY=sk-...           # OpenAI API key for AI analysis
 FIGMA_ACCESS_TOKEN=figd_...     # Figma personal access token
 VERCEL_TOKEN=vrc_...           # Vercel deployment token (optional)
 SUPABASE_TOKEN=sb_...          # Supabase project token (optional)
@@ -149,25 +151,25 @@ SUPABASE_TOKEN=sb_...          # Supabase project token (optional)
 
 ```typescript
 const generator = new BackendGenerator({
-  projectName: 'my-app',
-  openaiApiKey: process.env.OPENAI_API_KEY,
+  projectName: "my-app",
+  openaiApiKey: process.env.OPEN_AI_API_KEY,
   figmaAccessToken: process.env.FIGMA_ACCESS_TOKEN,
-  
+
   // Performance optimization
   enableCaching: true,
   cacheTimeout: 1800000, // 30 minutes
-  
+
   // AI configuration
-  openaiModel: 'gpt-5-turbo',
+  openaiModel: "gpt-5-turbo",
   maxTokens: 8000,
   temperature: 0.1,
-  
+
   // Deployment (optional)
   vercelToken: process.env.VERCEL_TOKEN,
   supabaseToken: process.env.SUPABASE_TOKEN,
   enableAutoDeployment: false,
-  
-  debug: true
+
+  debug: true,
 });
 ```
 
@@ -176,20 +178,20 @@ const generator = new BackendGenerator({
 ### Manual Deployment
 
 ```typescript
-import { LocofyMVPIntegration } from '@figma-backend/generator';
+import { LocofyMVPIntegration } from "@figma-backend/generator";
 
 const integration = new LocofyMVPIntegration({
-  projectName: 'my-app',
-  openaiApiKey: process.env.OPENAI_API_KEY,
+  projectName: "my-app",
+  openaiApiKey: process.env.OPEN_AI_API_KEY,
   figmaAccessToken: process.env.FIGMA_ACCESS_TOKEN,
   vercelToken: process.env.VERCEL_TOKEN,
   supabaseToken: process.env.SUPABASE_TOKEN,
-  enableAutoDeployment: true
+  enableAutoDeployment: true,
 });
 
-const result = await integration.generateAndDeploy('ABC123', {
+const result = await integration.generateAndDeploy("ABC123", {
   deployImmediately: true,
-  customDomain: 'my-app.com'
+  customDomain: "my-app.com",
 });
 
 console.log(`🚀 Deployed to: ${result.deployment?.deploymentUrl}`);
@@ -237,7 +239,7 @@ my-app/
 ### E-commerce App
 
 ```bash
-figma-backend -f "e-commerce-design" -n "my-store" -o $OPENAI_API_KEY -t $FIGMA_TOKEN --deploy
+figma-backend -f "e-commerce-design" -n "my-store" -o $OPEN_AI_API_KEY -t $FIGMA_TOKEN --deploy
 ```
 
 Generates: User management, product catalog, shopping cart, order processing
@@ -245,7 +247,7 @@ Generates: User management, product catalog, shopping cart, order processing
 ### Social Media Dashboard
 
 ```bash
-figma-backend -f "social-dashboard" -n "my-social-app" -o $OPENAI_API_KEY -t $FIGMA_TOKEN
+figma-backend -f "social-dashboard" -n "my-social-app" -o $OPEN_AI_API_KEY -t $FIGMA_TOKEN
 ```
 
 Generates: User profiles, posts, comments, likes, followers
@@ -268,8 +270,9 @@ figma-backend -f ABC123 -n my-app -o sk-... -t figd_... --debug
 ```
 
 Shows:
+
 - Figma API responses
-- AI prompts and responses  
+- AI prompts and responses
 - Generated code snippets
 - Performance metrics
 

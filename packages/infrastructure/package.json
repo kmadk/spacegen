@@ -1,6 +1,6 @@
 {
   "name": "@figma-backend/infrastructure",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Infrastructure adapters for Figma Backend Generator - Vercel, Supabase, and service integrations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -49,6 +49,7 @@
     "typescript": "^5.0.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

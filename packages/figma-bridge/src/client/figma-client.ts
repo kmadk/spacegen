@@ -8,10 +8,9 @@ import type {
   FigmaFileResponse,
   FigmaFetchOptions,
   FigmaNode,
-  FigmaAPIError,
-  FigmaRateLimitError,
   FigmaPerformanceMetrics
 } from '../types/figma-types';
+import { FigmaAPIError, FigmaRateLimitError } from '../types/figma-types';
 import { FigmaCache } from '../cache/figma-cache';
 import { DesignRelevanceFilter } from '../filters/design-relevance';
 
@@ -41,6 +40,12 @@ export class OptimizedFigmaClient {
     // Validate required config
     if (!config.accessToken) {
       throw new Error('Figma access token is required');
+    }
+
+    // Validate token format (skip validation in test environment)
+    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+    if (!isTestEnv && (!config.accessToken.startsWith('figd_') || config.accessToken.length < 20)) {
+      throw new Error('Invalid Figma access token format. Expected format: figd_...');
     }
 
     // Initialize HTTP client

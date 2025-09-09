@@ -13,6 +13,14 @@ beforeAll(() => {
   // Set up global test environment
   process.env.NODE_ENV = "test";
   process.env.VITEST = "true";
+  
+  // Set up valid test API keys for validation
+  if (!process.env.OPEN_AI_API_KEY) {
+    process.env.OPEN_AI_API_KEY = "sk-test-1234567890abcdef1234567890abcdef1234567890abcdef";
+  }
+  if (!process.env.FIGMA_ACCESS_TOKEN) {
+    process.env.FIGMA_ACCESS_TOKEN = "figd_test_1234567890abcdef1234567890abcdef1234567890abcdef";
+  }
 
   // Mock fetch globally if not already mocked
   if (!global.fetch) {

@@ -21,7 +21,7 @@ From any Figma file to complete live backend:
 
 - **PostgreSQL Database** - Schema inferred from your designs
 - **REST API** - Express.js endpoints with TypeScript
-- **Realistic Seed Data** - AI-generated test data  
+- **Realistic Seed Data** - AI-generated test data
 - **Live Deployment** - Vercel + Supabase hosting
 - **Production Ready** - Migrations, validation, error handling
 
@@ -45,7 +45,7 @@ figma-backend --figma-file ABC123 --project-name "my-ecommerce-app" --openai-key
 figma-backend --figma-file ABC123 --project-name "my-app" --openai-key sk-... --figma-token figd_... --deploy
 
 # Using environment variables
-export OPENAI_API_KEY=sk-...
+export OPEN_AI_API_KEY=sk-...
 export FIGMA_ACCESS_TOKEN=figd_...
 figma-backend --figma-file ABC123 --project-name "my-app"
 ```
@@ -53,16 +53,18 @@ figma-backend --figma-file ABC123 --project-name "my-app"
 ## Programmatic API Usage
 
 ```typescript
-import { BackendGenerator } from '@figma-backend/generator';
+import { BackendGenerator } from "@figma-backend/generator";
 
 const generator = new BackendGenerator({
-  projectName: 'my-app',
-  openaiApiKey: process.env.OPENAI_API_KEY,
-  figmaAccessToken: process.env.FIGMA_ACCESS_TOKEN
+  projectName: "my-app",
+  openaiApiKey: process.env.OPEN_AI_API_KEY,
+  figmaAccessToken: process.env.FIGMA_ACCESS_TOKEN,
 });
 
-const result = await generator.generateFromFigmaFile('YOUR_FIGMA_FILE_ID');
-console.log(`Generated ${result.models.length} models, ${result.endpoints.length} endpoints`);
+const result = await generator.generateFromFigmaFile("YOUR_FIGMA_FILE_ID");
+console.log(
+  `Generated ${result.models.length} models, ${result.endpoints.length} endpoints`
+);
 ```
 
 ## Design Guidelines
@@ -70,7 +72,7 @@ console.log(`Generated ${result.models.length} models, ${result.endpoints.length
 For optimal results, design with these patterns:
 
 - **Repeated Cards** - Becomes database tables
-- **Form Fields** - Becomes table columns  
+- **Form Fields** - Becomes table columns
 - **Related Content** - Becomes table relationships
 - **Navigation** - Becomes API endpoints
 
@@ -84,23 +86,26 @@ For optimal results, design with these patterns:
 ## Setup
 
 ### 1. Install the CLI
+
 ```bash
 npm install -g @figma-backend/generator
 ```
 
 ### 2. Get API Keys
+
 - **OpenAI API Key**: [Get from OpenAI Platform](https://platform.openai.com/api-keys)
 - **Figma Token**: [Get from Figma Settings](https://www.figma.com/settings) → Personal Access Tokens
 - **Vercel Token**: [Get from Vercel Dashboard](https://vercel.com/account/tokens) (optional, for deployment)
 - **Supabase Token**: [Get from Supabase Dashboard](https://supabase.com/dashboard/account/tokens) (optional, for deployment)
 
 ### 3. Set Environment Variables (Optional)
+
 ```bash
 # Copy example environment file
 cp .env.example .env
 
 # Edit .env with your API keys
-OPENAI_API_KEY=sk-...
+OPEN_AI_API_KEY=sk-...
 FIGMA_ACCESS_TOKEN=figd_...
 ```
 
@@ -110,7 +115,7 @@ FIGMA_ACCESS_TOKEN=figd_...
 my-app/
 ├── database/
 │   ├── schema.sql          # PostgreSQL schema
-│   ├── migrations/         # Database migrations  
+│   ├── migrations/         # Database migrations
 │   └── seed-data.json      # Realistic test data
 ├── api/
 │   ├── users.ts           # CRUD endpoints

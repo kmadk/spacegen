@@ -72,7 +72,7 @@ export class DesignRelevanceFilter {
       // Skip if not in allowed types
       if (!options.nodeTypes.includes(node.type as FigmaNodeType)) {
         // But still process children if it's a container
-        if (this.CONTAINER_TYPES.includes(node.type as FigmaNodeType) && node.children) {
+        if (this.CONTAINER_TYPES.includes(node.type as FigmaNodeType) && 'children' in node && node.children) {
           const filteredChildren = this.filterNodesRecursively(node.children, {
             ...options,
             currentDepth: options.currentDepth + 1
@@ -100,7 +100,7 @@ export class DesignRelevanceFilter {
 
       // Process children if applicable
       let processedNode = node;
-      if (node.children && this.CONTAINER_TYPES.includes(node.type as FigmaNodeType)) {
+      if ('children' in node && node.children && this.CONTAINER_TYPES.includes(node.type as FigmaNodeType)) {
         const filteredChildren = this.filterNodesRecursively(node.children, {
           ...options,
           currentDepth: options.currentDepth + 1
@@ -213,7 +213,7 @@ export class DesignRelevanceFilter {
     ];
 
     return dataPatterns.some(pattern => pattern.test(name)) ||
-           (node.children && node.children.length > 0); // Has potential child data
+           ('children' in node && node.children && node.children.length > 0); // Has potential child data
   }
 
   /**
@@ -261,7 +261,7 @@ export class DesignRelevanceFilter {
       const result: FigmaNode[] = [];
       for (const node of nodeList) {
         result.push(node);
-        if (node.children) {
+        if ('children' in node && node.children) {
           result.push(...getAllNodes(node.children));
         }
       }
@@ -339,7 +339,7 @@ export class DesignRelevanceFilter {
         }
       }
 
-      if (node.children) {
+      if ('children' in node && node.children) {
         for (const child of node.children) {
           extractTextFields(child, path + '/' + child.name);
         }

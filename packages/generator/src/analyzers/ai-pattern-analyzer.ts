@@ -49,11 +49,18 @@ export class AIPatternAnalyzer {
       ...config,
     };
 
-    this.useAI = !!(this.config.apiKey || process.env.OPEN_AI_API_KEY);
+    const apiKey = this.config.apiKey || process.env.OPEN_AI_API_KEY;
+    this.useAI = !!apiKey;
 
     if (this.useAI) {
+      // Validate API key format (skip validation in test environment)
+      const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+      if (!isTestEnv && (!apiKey?.startsWith('sk-') || apiKey.length < 20)) {
+        throw new Error('Invalid OpenAI API key format. Expected format: sk-...');
+      }
+      
       this.openai = new OpenAI({
-        apiKey: this.config.apiKey || process.env.OPEN_AI_API_KEY,
+        apiKey,
       });
     }
 

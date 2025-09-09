@@ -62,7 +62,7 @@ export class AgenticBackendParser {
     }
 
     if (this.config.debug) {
-      logger.info('🤖 Starting agentic backend parsing with GPT-5...');
+      this.logger.info('🤖 Starting agentic backend parsing with GPT-5...');
     }
 
     try {
@@ -70,7 +70,7 @@ export class AgenticBackendParser {
       const plan = await this.planAnalysis(designData);
       
       if (this.config.debug) {
-        logger.info('📋 Analysis Plan:', {
+        this.logger.info('📋 Analysis Plan:', {
           strategy: plan.strategy,
           complexity: plan.complexity,
           steps: plan.steps.length,
@@ -96,7 +96,7 @@ export class AgenticBackendParser {
         }
 
         if (this.config.debug) {
-          logger.info(`✅ Completed step: ${step.description} (confidence: ${context.confidence})`);
+          this.logger.info(`✅ Completed step: ${step.description} (confidence: ${context.confidence})`);
         }
       }
 
@@ -104,7 +104,7 @@ export class AgenticBackendParser {
       const result = await this.synthesizeFinalBackend(context, designData);
 
       if (this.config.debug) {
-        logger.info('🎯 Agentic parsing complete:', {
+        this.logger.info('🎯 Agentic parsing complete:', {
           models: result.models.length,
           endpoints: result.endpoints.length,
           files: result.files.length,

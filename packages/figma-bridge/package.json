@@ -1,6 +1,6 @@
 {
   "name": "@figma-backend/figma-bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "High-performance Figma API client for design data extraction",
   "type": "module",
   "main": "dist/index.js",
@@ -40,5 +40,14 @@
   "homepage": "https://github.com/kmadk/spacegen#readme",
   "bugs": {
     "url": "https://github.com/kmadk/spacegen/issues"
+  },
+  "files": [
+    "dist/**",
+    "README.md",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

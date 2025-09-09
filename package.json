@@ -17,18 +17,28 @@
     "dev": "turbo run dev",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run --reporter=verbose",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:bench": "vitest bench",
+    "test:memory": "vitest run --reporter=verbose --logHeapUsage",
+    "test:compatibility": "vitest run --reporter=verbose",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
+    "docs:generate": "echo 'Documentation generation not yet configured'",
+    "docs:validate": "echo 'Documentation validation not yet configured'",
+    "docs:check-links": "echo 'Link checking not yet configured'",
+    "profile:resources": "echo 'Resource profiling not yet configured'",
     "clean": "turbo run clean && rm -rf node_modules/.cache",
     "publish:packages": "turbo run build && changeset publish",
     "changeset": "changeset",
     "version": "changeset version",
     "preinstall": "npx only-allow pnpm"
   },
+  "private": true,
   "keywords": [
     "figma",
     "backend-generator",
@@ -55,6 +65,11 @@
     "turbo": "^2.0.5",
     "typescript": "^5.5.3",
     "vitest": "^1.6.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "^0.25.0"
+    }
   },
   "turbo": {
     "tasks": {
